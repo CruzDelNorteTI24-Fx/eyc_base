@@ -2295,7 +2295,7 @@ async function exportarPDFMovimientos(modo = 'pagina') {
 
   // ========= Tabla (PLACA y NOTA separadas) =========
   const head = [[
-    'ID','Fecha','Tipo','Producto','Categoría','Cant.','Documento','Placa','Nota','Estado','Obs.'
+    'ID','Fecha','Tipo','Producto','Categoría','Cant.','Placa','Nota','Estado','Obs.'
   ]];
 
   const body = rows.map(r => {
@@ -2322,7 +2322,6 @@ async function exportarPDFMovimientos(modo = 'pagina') {
       prod,
       cat,
       (r.clm_alm_mov_cantidad ?? '').toString(),
-      docCell,
       trunc(placa, 10),
       trunc(nota, 10),
       (r.clm_alm_movimientos_estadoetiq ?? '').toString().trim() || '—',
@@ -2366,11 +2365,10 @@ async function exportarPDFMovimientos(modo = 'pagina') {
       3:  { cellWidth: 130 }, // Producto
       4:  { cellWidth: 78 },  // Categoría
       5:  { cellWidth: 48, halign:'right' },  // Cant.
-      6:  { cellWidth: 90 },  // Documento
-      7:  { cellWidth: 46 },  // Placa
-      8:  { cellWidth: 46 },  // Nota
-      9:  { cellWidth: 58 },  // Estado
-      10: { cellWidth: 146 }  // Obs.
+      6:  { cellWidth: 46 },  // Placa
+      7:  { cellWidth: 46 },  // Nota
+      8:  { cellWidth: 58 },  // Estado
+      9: { cellWidth: 146 }  // Obs.
     },
 
     // Header/KPIs ANTES de la tabla (no se pisan)
@@ -2401,7 +2399,7 @@ async function exportarPDFMovimientos(modo = 'pagina') {
           data.cell.styles.fontStyle = 'bold';
         }
       }
-      if (data.section === 'body' && data.column.index === 9) {
+      if (data.section === 'body' && data.column.index === 8) {
         data.cell.styles.fillColor = [238, 242, 255];
         data.cell.styles.textColor = [55, 48, 163];
         data.cell.styles.fontStyle = 'bold';
