@@ -108,7 +108,7 @@ $dni = trim((string)($_SESSION['DNI'] ?? 'No registrado'));
 
                     <div class="admin-doc-preview">
                         <div class="admin-doc-preview__paper" aria-hidden="true">
-                            <div class="admin-doc-preview__header">EMPRESA DE TRANSPORTES CRUZ DEL NORTE S.A.C.<br>RUC: 20403002101</div>
+                            <div class="admin-doc-preview__header">EYC<br>RUC: 20612772348</div>
                             <div class="admin-doc-preview__body"></div>
                             <div class="admin-doc-preview__footer"><span>Eyc</span><span>eyc-DOC-DEMO</span><span>Pagina 1 de 1</span></div>
                         </div>

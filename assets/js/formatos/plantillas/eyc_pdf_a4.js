@@ -3,7 +3,7 @@
 
     const DEFAULTS = {
         companyName: 'EMPRESA DE TRANSPORTES CRUZ DEL NORTE S.A.C.',
-        ruc: '20403002101',
+        ruc: '20612772348',
         systemName: 'Eyc° - ERP Operativo de Transporte',
         docCode: 'eyc-DOC-DEMO',
         title: 'FORMATO DOCUMENTARIO',

@@ -258,7 +258,7 @@ try {
     $products = [];
     $total = 0.0;
     $docRef = '';
-    $ruc = '20403002101';
+    $ruc = '20612772348';
 
     foreach ($movimientos as $mov) {
         $codigo = eyc_note_text($mov['clm_alm_producto_codigo'] ?? '', 'S/C');

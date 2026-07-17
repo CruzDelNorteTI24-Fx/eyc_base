@@ -19,7 +19,7 @@
         const now = nowParts();
         return {
             kind,
-            ruc: cfg.ruc || '20403002101',
+            ruc: cfg.ruc || '20612772348',
             fecha: now.fecha,
             hora: now.hora,
             impreso: now.impreso,
