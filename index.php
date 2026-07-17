@@ -4,14 +4,17 @@ if (!isset($_SESSION['usuario'])) {
     header("Location: ../login/login.php");
     exit();
 }
-
+//hola
 define('ACCESS_GRANTED', true);
 require_once("trash/copidb_secure copy.php");
 
+define('eyc_LAYOUT', true);
+define('eyc_BASE_URL', './');
 
-
-$permisos = ($_SESSION['permisos'] == 'all') ? [] : ($_SESSION['permisos'] ?? []);
-$vistas = ($_SESSION['permisos'] == 'all') ? [] : ($_SESSION['vistas'] ?? []);
+require_once __DIR__ . '/layout/sidebar_eyc.php';
+require_once __DIR__ . '/layout/header_eyc.php';
+require_once __DIR__ . '/layout/footer_eyc.php';
+require_once __DIR__ . '/layout/content_eyc.php';
 
 $exito = isset($_SESSION['exito']) && $_SESSION['exito'] === true;
 unset($_SESSION['exito']);
@@ -22,9 +25,15 @@ unset($_SESSION['exito']);
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Norte360 | Panel Principal</title>
+    <title>EYC | Panel Principal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="img/norte360.png">    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/sidebar_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/header_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/main_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/footer_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/content_eyc.css') ?>">
+    <link rel="icon" href="img/eyc.png">    
     <style>
         body {
   background: linear-gradient(to bottom right, #ecf0f1, #d9e2ec);
@@ -189,14 +198,7 @@ unset($_SESSION['exito']);
     transform: scale(1.05);
 }
 
-hr {
-    border: none;
-    height: 2px;
-    background: linear-gradient(to right, #3498db, yellow, #3498db);
-    margin: 50px auto 30px auto;
-    width: 80%;
-    border-radius: 4px;
-}
+
 /* BOTÓN FLOTANTE DE SOPORTE */
 .btn-flotante {
     position: fixed;
@@ -217,137 +219,8 @@ hr {
     background: #218838;
     transform: scale(1.1);
 }
-.main-header {
-    background: #2c3e50;
-    width: 100%;
-    padding: 20px 30px;
-    color: white;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    box-sizing: border-box;
-}
-
-.header-content {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    max-width: none;
-    padding: 0 30px;
-    box-sizing: border-box;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.logo-bloque {
-    display: flex;
-    align-items: center;
-}
-
-.logo-header {
-    max-width: 60px;
-    height: auto;
-    width: auto;
-}
-.logo-header2 {
-    max-width: 60px;
-    height: auto;
-    max-width: 300px;
-}
-.logo-header3 {
-    align-items: center;
-
-    max-width: 150px;
-    height: auto;
-    width: auto;
-}
-.separador-vertical {
-    width: 4px;
-    height: 50px;
-    background: #ecf0f1;
-    margin: 0 10px;
-}
-
-
-
-.main-footer {
-    background: #2c3e50;
-    color: white;
-    padding: 30px 20px;
-    font-size: 14px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.footer-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-
-.footer-info {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.footer-title {
-    font-weight: bold;
-    font-size: 16px;
-    margin: 0 0 10px 0;
-}
-
-.footer-cajas {
-    display: flex;
-    gap: 15px;
-}
-
-.footer-box {
-    padding: 10px;
-    border-radius: 8px;
-    width: 40px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.footer-box img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-.footer-copy {
-    text-align: center;
-    margin-top: 30px;
-    font-size: 13px;
-    color: #ccc;
-}
-
-
-
 
 @media (max-width: 600px) {
-    .header-content {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 10px;
-        padding: 10px 20px;
-    }
-    .separador-vertical {
-        display: none;
-    }
-    
-    .logo-header {
-        display: none;
-
-}
-    
             .card, .metodos-extra {
                 padding: 20px;
 margin: 20px
@@ -470,6 +343,23 @@ margin: 20px
     text-align: center;
 }
 
+.admin-access-card {
+    position: relative;
+    border: 1px solid rgba(35, 137, 201, 0.22);
+}
+
+.admin-access-card__icon {
+    width: 116px;
+    height: 116px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #17283a 0%, #2389c9 100%);
+    color: #fff;
+    font-size: 48px;
+    box-shadow: 0 14px 26px rgba(23, 40, 58, 0.18);
+}
 .pagination {
     text-align: center;
     margin-top: 30px;
@@ -839,299 +729,7 @@ margin: 20px
     font-size: 20px;
     margin-right: 10px;
 }
-.nav-bar-pro {
-    background: #34495e;
-    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
-    overflow-x: auto;
-    white-space: nowrap;
-}
 
-.nav-list-pro {
-    list-style: none;
-    margin: 0;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 30px;
-}
-
-.nav-list-pro li a {
-    color: white;
-    font-weight: bold;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    border-radius: 30px;
-    transition: background 0.3s, transform 0.3s;
-    position: relative;
-}
-
-.nav-list-pro li a:hover {
-    background: #2c3e50;
-    transform: scale(1.05);
-}
-
-.nav-list-pro li a::after {
-    content: '';
-    position: absolute;
-    height: 3px;
-    background: #3498db;
-    width: 0%;
-    left: 50%;
-    bottom: 4px;
-    transition: all 0.3s ease-in-out;
-    transform: translateX(-50%);
-}
-
-.nav-list-pro li a:hover::after {
-    width: 60%;
-}
-
-@media (max-width: 768px) {
-  .nav-list-pro {
-    gap: 16px;
-    padding: 10px;
-  }
-
-  .nav-list-pro li a {
-    font-size: 14px;
-    padding: 8px 12px;
-  }
-}
-.subnav {
-  display: flex;
-  gap: 20px;
-  padding: 12px 30px;
-  background: #dff3f9;
-  border-bottom: 3px solid #3498db;
-  animation: fadeIn 0.3s ease;
-}
-
-.subnav a {
-  color: #2c3e50;
-  font-weight: 600;
-  text-decoration: none;
-  background: #ecf0f1;
-  padding: 8px 16px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
-.subnav a:hover {
-  background: #3498db;
-  color: white;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.usuario-barra {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-  font-weight: bold;
-}
-.usuario-barra img {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: white;
-  padding: 2px;
-}
-.usuario-barra span {
-  font-weight: bold;
-  font-size: 15px;
-  white-space: nowrap;
-}
-.usuario-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 30px;
-  margin-top: 5px;
-  background: white;
-  color: #2c3e50;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  padding: 15px 20px;
-  min-width: 220px;
-  display: none;
-  z-index: 999;
-  font-size: 15px;
-  animation: fadeIn 0.3s ease-in-out;
-    transition: all 0.3s ease-in-out;
-}
-
-.usuario-dropdown p {
-  margin: 8px 0;
-}
-
-.usuario-barra {
-  cursor: pointer;
-  position: relative;
-}
-.btn-logout-dropdown {
-  display: block;
-  background: #e74c3c;
-  color: white;
-  text-align: center;
-  padding: 10px 0;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: bold;
-  transition: background 0.3s, transform 0.2s;
-}
-
-.btn-logout-dropdown:hover {
-  background: #c0392b;
-  transform: scale(1.03);
-}
-
-.menu-lateral {
-  overflow-y: auto;
-  position: fixed;
-  left: 0;
-  width: 240px;
-  height: calc(100% - 140px);
-  background: #f7f9fb;
-  color: #2d3436;
-  padding: 30px 20px;
-  box-shadow: 4px 0 12px rgba(0,0,0,0.06);
-  box-sizing: border-box;
-  z-index: 900;
-  transition: transform 0.4s ease;
-  border-right: 1px solid #e0e0e0;
-}
-
-.menu-lateral h3 {
-  font-size: 17px;
-  margin-bottom: 20px;
-  color: #0984e3;
-  border-bottom: 2px solid #0984e3;
-  padding-bottom: 10px;
-  font-weight: 600;
-}
-
-.menu-lateral ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.menu-lateral ul li {
-  margin-bottom: 14px;
-}
-
-.menu-lateral ul li a {
-  color: #2d3436;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s;
-  padding: 8px 12px;
-  border-radius: 6px;
-}
-
-.menu-lateral ul li a:hover {
-  background: #dcdde1;
-  color: #0984e3;
-  transform: translateX(4px);
-}
-
-.menu-toggle {
-  display: none;
-  position: fixed;
-  top: 100px;
-  left: 20px;
-  background: #0984e3;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 20px;
-  z-index: 1001;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  cursor: pointer;
-}
-
-/* Responsive en móviles */
-@media (max-width: 768px) {
-  .menu-lateral {
-    position: fixed; /* Mejor experiencia móvil */
-    top: 0;
-    left: 0;
-    width: 250px;
-    height: 100%;
-    background: #fff; /* O el color de tu menú */
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 9;
-  }
-
-  .menu-lateral.active {
-    transform: translateX(0);
-  }
-
-  .main-content {
-    margin-left: 0 !important;
-    transition: margin-left 0.3s ease;
-  }
-
-  .menu-toggle {
-    position: fixed; /* Para que siempre sea visible */
-    top: 15px;
-    left: 15px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 30px;
-    height: 30px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    z-index: 10;
-  }
-
-  .menu-toggle span {
-    width: 100%;
-    height: 3px;
-    background-color: #333; /* Cambia según tu paleta */
-    border-radius: 2px;
-    transition: all 0.3s ease-in-out;
-    transform-origin: 1px;
-  }
-
-  /* ANIMACIÓN AL ACTIVAR (hamburger a X) */
-  .menu-toggle.active span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
-  }
-
-  .menu-toggle.active span:nth-child(2) {
-    opacity: 0;
-  }
-
-  .menu-toggle.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(5px, -5px);
-  }
-}
-
-
-
-.main-content {
-    margin-left: 240px;
-    padding: 30px;
-}
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1167,16 +765,6 @@ margin: 20px
 </head>
 
 <body>
-<?php
-function calcularEdad($fechaNacimiento) {
-    $hoy = new DateTime();
-    $nac = new DateTime($fechaNacimiento);
-    $edad = $hoy->diff($nac);
-    return $edad->y;
-}
-
-$edad = calcularEdad("2000-04-12"); // ejemplo
-?>
 <?php if ($exito): ?>
     
 <div id="popup-exito">
@@ -1191,94 +779,16 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
 
 <?php endif; ?>
 
-<header class="main-header animated-border">
-  <div class="header-content">
-    <a href="javascript:location.reload()">
-        <div class="logo-bloque">
-            <img src="img/norte360.png" alt="Logo Empresa" class="logo-header">
-        </div>
-    </a>
+<?php eyc_render_header([
+    'title' => 'Panel principal',
+    'subtitle' => 'Resumen general del sistema',
+]); ?>
 
-    <div class="separador-vertical"></div>
-        <a href="javascript:location.reload()">
-            <div class="logo-bloque">
-            <img src="img/completo.png" alt="Logo Sistema" class="logo-header2">
-            </div>
-        </a>
+<?php eyc_render_sidebar(); ?>
 
-
-    <div class="usuario-contenedor" style="margin-left:auto; position: relative;">
-      <div class="usuario-barra" onclick="toggleDropdown()">
-        <span>Hola, <?= htmlspecialchars($_SESSION['usuario']) ?></span>
-        <img src="img/icons/user.png" alt="Usuario">
-      </div>
-      <div class="usuario-dropdown" id="usuarioDropdown">
-        <p><strong>Nombre:</strong> <?= htmlspecialchars($_SESSION['usuario']) ?></p>
-        <p><strong>DNI:</strong> <?= htmlspecialchars($_SESSION['DNI']) ?></p>
-        <p><strong>Edad:</strong> <?= $edad ?> años</p>
-        <hr style="background: linear-gradient(120deg, #2980b9 30%, black 50%, #2980b9 70%); margin: 12px 0; border: none; border-top: 1px solid #eee;">
-        <p><strong>Rol:</strong> <?= htmlspecialchars($_SESSION['web_rol']) ?></p>
-        <a href="login/logout.php" class="btn-logout-dropdown">Cerrar sesión</a>
-      </div>
-    </div>
-
-    </div>
-</header>
-
-<nav id="nav-modulos" class="nav-bar-pro">
-  <ul class="nav-list-pro">
-  <?php
-    if ($_SESSION['web_rol'] === 'Admin' || in_array(6, $permisos)) {
-        echo '<li><a href="#" onclick="mostrarSubmenu(\'modulo-personal\')">👥 Recursos Humanos</a></li>';
-    }
-    if ($_SESSION['web_rol'] === 'Admin' || in_array(5, $permisos)) {
-        echo '<li><a href="#" onclick="mostrarSubmenu(\'modulo-mantenimiento\')">🔧 Mantenimiento</a></li>';
-    }
-    if ($_SESSION['web_rol'] === 'Admin' || in_array(3, $permisos)) {
-        echo '<li><a href="#" onclick="mostrarSubmenu(\'modulo-inventario\')">📦 Inventario</a></li>';
-    }
-  ?>
-  </ul>
-</nav>
-
-<div id="modulo-personal" class="subnav" style="display: none;">
-  <a href="01_contratos/nregrcdn_h.php">➕ Nuevo Personal</a>
-  <a href="01_entrevistas/reentrev.php">➕ Nueva Entrevista</a>
-  <a href="01_contratos/documentacion/agregadocu.php">➕ Nueva Documentación</a>
-  <a href="01_contratos/nlaskdrcdn_h.php">👤 Personal</a>
-  <a href="01_entrevistas/bvisentrevisaf.php">📝 Entrevistas</a>
-  <a href="01_contratos/dorrhcdn.php">📁 Documentación</a>
-</div>
-
-<div id="modulo-inventario" class="subnav" style="display: none;">
-  <a href="01_almacen/scanner.php"> 🏷️ Código de Barra</a>
-  <a href="01_almacen/gen_np9823.php">📋 Catálogo Productos</a>
-</div>
-
-<div id="modulo-mantenimiento" class="subnav" style="display: none;">
-  <a href="01_amantenimiento\lista_cheklist.php">📝 CheckList</a>
-</div>
-
-<button class="menu-toggle" onclick="toggleMenu()">☰</button>
-
-<div class="menu-lateral" id="menuLateral">
-  <?php
-  // Ejemplo de tus variables de sesión
-
-  // INVENTARIO
-  if ($_SESSION['web_rol'] === 'Admin' || in_array(3, $permisos)) {
-      echo '<h3>Inventario</h3>
-      <ul>';
-      echo '<li><a href="01_almacen/scanner.php">Código de Barras</a></li>';
-      echo '<li><a href="01_almacen/gen_np9823.php">Productos</a></li>';
-      echo '<li><a href="01_almacen/movimientos_ofi.php">Movimientos</a></li>';
-      echo '</ul>';
-  }
-  ?>
-</div>
-
-<div class="main-content">
-    <hr>
+<main class="main-content eyc-main eyc-main--dashboard" role="main">
+    <div class="eyc-main__inner">
+        <?php eyc_render_content_separator('top'); ?>
 
 <?php
 date_default_timezone_set('America/Lima');
@@ -1297,7 +807,7 @@ if ($hora >= 5 && $hora < 12) {
 $frases = [
     "¡Hoy es un gran día para alcanzar metas!",
     "¡Cada paso que das te acerca al éxito!",
-    "¡Gracias por tu compromiso con Norte360!",
+    "¡Gracias por tu compromiso con EYC!",
     "¡Juntos hacemos posible lo imposible!",
     "Un cafecito y como nuev@",
     "Atrévete ;)"
@@ -1316,46 +826,84 @@ $mensaje_extra = $frases[array_rand($frases)];
     <p style="text-align:center; font-size:18px; color:#555;">Selecciona un módulo para iniciar</p>
 
 <div class="catalogo-container">
-
-
 <?php
-// if ($_SESSION['web_rol'] === 'Admin' || in_array(6, $permisos)) {
-//   echo '
-//   <div class="product-card">
-//     <img src="img/icons/entrevistas.png" alt="Entrevistas">
-//     <h4>Entrevistas</h4>
-//     <p>Gestiona entrevistas de personal</p>
-//     <a href="01_entrevistas/reentrev.php" class="btn-validar">Ingresar</a>
-//   </div>';
-// }
+if (eyc_is_admin()) {
+  echo '
+  <div class="product-card admin-access-card">
+    <div class="admin-access-card__icon" aria-hidden="true"><i class="bi bi-shield-lock-fill"></i></div>
+    <h4>Permisos y accesos</h4>
+    <p>Mapa de modulos, interfaces y usuarios</p>
+    <a href="admin/permisos_mapa.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
 
-// if ($_SESSION['web_rol'] === 'Admin' || in_array(6, $permisos)) {
-//   echo '
-//   <div class="product-card">
-//     <img src="img/icons/personal-information.png" alt="Personal">
-//     <h4>Recursos Humanos</h4>
-//     <p>Visualiza y registra trabajadores</p>
-//     <a href="01_contratos/nlaskdrcdn_h.php" class="btn-validar">Ingresar</a>
-//   </div>';
-// // }
+if (eyc_puede_modulo(6)) {
+  echo '
+  <div class="product-card">
+    <img src="img/icons/entrevistas.png" alt="Entrevistas">
+    <h4>Entrevistas</h4>
+    <p>Gestiona entrevistas de personal</p>
+    <a href="01_entrevistas/reentrev.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
 
-// if ($_SESSION['web_rol'] === 'Admin' || in_array(5, $permisos)) {
-//   echo '
-//   <div class="product-card">
-//     <img src="img/icons/mantenimiento.png" alt="Mantenimiento">
-//     <h4>Mantenimiento</h4>
-//     <p>Programación y seguimiento de buses</p>
-//     <a href="01_amantenimiento/lista_cheklist.php" class="btn-validar">Ingresar</a>
-//   </div>';
-// }
+if (eyc_puede_modulo(6)) {
+  echo '
+  <div class="product-card">
+    <img src="img/icons/personal-information.png" alt="Personal">
+    <h4>Recursos Humanos</h4>
+    <p>Visualiza y registra trabajadores</p>
+    <a href="01_contratos/nlaskdrcdn_h.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
 
-if ($_SESSION['web_rol'] === 'Admin' || in_array(3, $permisos)) {
+if (eyc_puede_modulo(5)) {
+  echo '
+  <div class="product-card">
+    <img src="img/icons/mantenimiento2.png" alt="Mantenimiento">
+    <h4>Calidad</h4>
+    <p>CheckList de calidad</p>
+    <a href="01_amantenimiento/lista_cheklist.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
+
+if (eyc_puede_modulo(3)) {
   echo '
   <div class="product-card">
     <img src="img/icons/almacen.png" alt="Inventario">
     <h4>Inventario</h4>
     <p>Gestiona almacén y productos</p>
     <a href="01_almacen/scanner.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
+
+if (eyc_puede_vista('f-progcond')) {
+  echo '
+  <div class="product-card">
+    <img src="img/icons/roles.png" alt="Roles">
+    <h4>Conductores</h4>
+    <p>Programación de Conductores</p>
+    <a href="01_flota/programacion_condt.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
+
+if (eyc_puede_vista('f-proghor')) {
+  echo '
+  <div class="product-card">
+    <img src="img/icons/calendario.png" alt="Roles">
+    <h4>Programación</h4>
+    <p>Programación Horarios</p>
+    <a href="01_flota/programacion_horarios.php" class="btn-validar">Ingresar</a>
+  </div>';
+}
+
+if (eyc_puede_alguna_vista(['f-placas', 'f-flotas'])) {
+  echo '
+  <div class="product-card">
+    <img src="img/icons/placa.png" alt="Roles">
+    <h4>Vehículos</h4>
+    <p>Gestión de Placas</p>
+    <a href="01_flota/gest_plac.php" class="btn-validar">Ingresar</a>
   </div>';
 }
 ?>
@@ -1366,70 +914,18 @@ if ($_SESSION['web_rol'] === 'Admin' || in_array(3, $permisos)) {
 
 
 
-    <!-- <a href="https://wa.me/51944532822?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20el%20servicio.%20Agradezco%20su%20atención." class="btn-flotante" target="_blank">💬 Soporte</a> -->
-    <a href="https://wa.me/51944532822?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20una%20etiqueta.%20Agradezco%20su%20atención." class="btn-flotante" target="_blank" title="Soporte por WhatsApp">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Soporte" style="width:30px; height:30px;">
-    </a>
-    <hr>
-</div>
 
-
-
-
-<footer class="main-footer animated-border">
-  <div class="footer-top">
-    <img src="img/norte360.png" alt="Logo Empresa" class="logo-header3">
-    <div class="footer-info">
-      <p class="footer-title">Contáctanos</p>
-      <div class="footer-cajas">
-        <div class="footer-box"><img src="img/icons/facebook.png" alt="Función 1"></div>
-        <div class="footer-box"><img src="img/icons/social.png" alt="Función 2"></div>
-      </div>
+        <?php eyc_render_content_separator('bottom'); ?>
     </div>
-  </div>
-  <p class="footer-copy">© <?= date('Y') ?> Norte 360° (v1.0.6). Todos los derechos reservados.</p>
-  <style>.footer-h2bd {position: absolute;bottom: 10px;right: 10px;opacity: 0;transition: opacity 0.4s ease;width: 80px;}.main-footer:hover .footer-h2bd {opacity: 0.6;}.footer-h2bd {filter: grayscale(40%);}</style>
-  <div id="h2bd" style="display:none; position:fixed; bottom:10px; left:10px; z-index:9999; text-align:center;"><img src="<?= $h2bd_img ?>" alt="icong" style="width:80px; opacity:0.8; filter: grayscale(40%); display:block; margin:0 auto;"><p style="color:white; font-size:12px; margin:4px 0 0 0;"><?= $h2bd_name ?></p></div>
-  <script>document.addEventListener('keydown', function(e) {if (e.ctrlKey && e.altKey && e.key === 'm') {const egg = document.getElementById('h2bd');egg.style.display = egg.style.display === 'none' ? 'block' : 'none';}});</script>
+</main>
 
-</footer>
 
-<script>
-function mostrarSubmenu(id) {
-  const seleccionado = document.getElementById(id);
-  const estaVisible = seleccionado && seleccionado.style.display === 'flex';
 
-  document.querySelectorAll('.subnav').forEach(el => el.style.display = 'none');
 
-  if (!estaVisible && seleccionado) {
-    seleccionado.style.display = 'flex';
-  }
-}
-</script>
+<?php eyc_render_footer(); ?>
 
-<script>
-function toggleDropdown() {
-  const dropdown = document.getElementById("usuarioDropdown");
-  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-}
-
-// Cierra si haces clic fuera
-document.addEventListener("click", function (e) {
-  const barra = document.querySelector(".usuario-barra");
-  const dropdown = document.getElementById("usuarioDropdown");
-
-  if (!barra.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.style.display = "none";
-  }
-});
-</script>
-<script>
-function toggleMenu() {
-  const menu = document.querySelector('.menu-lateral');
-  menu.classList.toggle('active');
-}
-</script>
-
+<script src="<?= eyc_asset('assets/js/header_eyc.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
 </body>
 
 

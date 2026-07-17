@@ -38,7 +38,7 @@ unset($_SESSION['exito']);
     <meta charset="UTF-8">
     <title>Mantenimiento | Norte 360°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="../img/norte360.png">      
+    <link rel="icon" href="../img/eyc.png">      
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1854,7 +1854,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
   <div class="header-content">
     <a href="../index.php"">
         <div class="logo-bloque">
-            <img src="../img/norte360.png" alt="Logo Empresa" class="logo-header">
+            <img src="../img/eyc.png" alt="Logo Empresa" class="logo-header">
         </div>
     </a>
 
@@ -2049,7 +2049,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <footer class="main-footer animated-border">
   <div class="footer-top">
-    <img src="../img/norte360.png" alt="Logo Empresa" class="logo-header3">
+    <img src="../img/eyc.png" alt="Logo Empresa" class="logo-header3">
     <div class="footer-info">
       <p class="footer-title">Contáctanos</p>
       <div class="footer-cajas">

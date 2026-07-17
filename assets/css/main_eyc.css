@@ -1,0 +1,72 @@
+:root {
+    --eyc-main-max: 1840px;
+    --eyc-main-pad-x: clamp(18px, 2.1vw, 34px);
+    --eyc-main-pad-y: clamp(22px, 2.4vw, 36px);
+}
+
+.eyc-main,
+.eyc-main * {
+    box-sizing: border-box;
+}
+
+.eyc-main {
+    width: 100%;
+    min-height: calc(100vh - 76px);
+    margin: 0;
+    padding: var(--eyc-main-pad-y) var(--eyc-main-pad-x) 18px;
+}
+
+.eyc-main__inner {
+    width: 100%;
+    max-width: var(--eyc-main-max);
+    margin: 0 auto;
+}
+
+.eyc-main--dashboard {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.20), transparent 190px),
+        transparent;
+}
+
+body.with-sidebar .eyc-main,
+body.sidebar-collapsed .eyc-main {
+    margin-left: 0 !important;
+}
+
+@media (min-width: 1600px) {
+    .eyc-main {
+        --eyc-main-pad-x: 38px;
+    }
+}
+
+@media (max-width: 991px) {
+    .eyc-main {
+        min-height: auto;
+        padding: 18px clamp(12px, 4vw, 18px) 28px;
+    }
+
+    .eyc-main__inner {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .eyc-main {
+        padding-top: 14px;
+        padding-bottom: 24px;
+    }
+}
+.eyc-main--compact-access {
+    padding-top: clamp(8px, 1.1vw, 16px);
+}
+
+.eyc-main--compact-access .eyc-content-separator--top {
+    margin-top: 6px;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 560px) {
+    .eyc-main--compact-access {
+        padding-top: 10px;
+    }
+}

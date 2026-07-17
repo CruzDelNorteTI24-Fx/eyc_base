@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/../layout/security_eyc.php';
+eyc_send_security_headers();
+eyc_start_secure_session();
 
 // Si no hay sesión, redirige a login
 if (!isset($_SESSION['usuario'])) {

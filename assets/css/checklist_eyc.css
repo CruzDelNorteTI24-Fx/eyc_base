@@ -1,0 +1,77 @@
+body > .main-header,
+body > .nav-bar-pro,
+body > .subnav,
+body > .menu-toggle,
+body > .menu-lateral,
+body > footer.main-footer {
+    display: none !important;
+}
+
+main.main-content.eyc-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: var(--eyc-main-pad-y) var(--eyc-main-pad-x) 34px !important;
+}
+
+.eyc-checklist-shell {
+    display: grid;
+    gap: 18px;
+}
+
+.eyc-checklist-shell > .card,
+.eyc-checklist-shell > form {
+    width: min(100%, 980px) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.eyc-checklist-shell > .card {
+    border: 1px solid #d9e4ef;
+    border-left: 5px solid #2389c9;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 35, 52, .08);
+}
+
+.eyc-checklist-shell > form {
+    border: 1px solid #d9e4ef;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 24px rgba(15, 35, 52, .08) !important;
+}
+
+.eyc-checklist-shell .btn-cancelar,
+.eyc-checklist-shell .btn-validar {
+    width: auto;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 800;
+}
+
+.eyc-checklist-shell .btn-validar {
+    width: 100%;
+}
+
+.eyc-checklist-shell input[type="text"],
+.eyc-checklist-shell input[type="number"],
+.eyc-checklist-shell input[type="datetime-local"],
+.eyc-checklist-shell select {
+    max-width: 100%;
+}
+
+.eyc-checklist-shell .checklist-options {
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    main.main-content.eyc-main {
+        padding: 18px clamp(12px, 4vw, 18px) 28px !important;
+    }
+
+    .eyc-checklist-shell > .card,
+    .eyc-checklist-shell > form {
+        padding: 20px !important;
+    }
+}

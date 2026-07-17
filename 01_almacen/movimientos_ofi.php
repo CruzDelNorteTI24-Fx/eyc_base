@@ -1,17 +1,31 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['usuario'])) {
+    header("Location: ../login/login.php");
+    exit();
+}
+
+$isAdmin = (($_SESSION['web_rol'] ?? '') === 'Admin');
+
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
 
-$permisos = ($_SESSION['permisos'] == 'all') ? [] : ($_SESSION['permisos'] ?? []);
-$vistas = ($_SESSION['permisos'] == 'all') ? [] : ($_SESSION['vistas'] ?? []);
+define('eyc_LAYOUT', true);
+define('eyc_BASE_URL', '../');
+require_once __DIR__ . '/../layout/sidebar_eyc.php';
+require_once __DIR__ . '/../layout/header_eyc.php';
+require_once __DIR__ . '/../layout/footer_eyc.php';
+require_once __DIR__ . '/../layout/content_eyc.php';
+// 01_almacen\movimientos_ofi.php:
+$permisos = (($_SESSION['permisos'] ?? '') == 'all') ? [] : ($_SESSION['permisos'] ?? []);
+$vistas = (($_SESSION['permisos'] ?? '') == 'all') ? [] : ($_SESSION['vistas'] ?? []);
 
-if ($_SESSION['web_rol'] !== 'Admin') {
+if (!$isAdmin) {
     $modulo_actual = 3; // id_modulo de esta vista
 
     if (!in_array($modulo_actual, $_SESSION['permisos'])) {
-        header("Location: ../../login/none_permisos.php");
+        header("Location: ../login/none_permisos.php");
         exit();
     }
 }
@@ -39,7 +53,10 @@ $categoria_id = isset($_GET['categoria_id']) ? intval($_GET['categoria_id']) : 0
 $buscar       = isset($_GET['buscar']) ? trim($_GET['buscar']) : '';
 $placa        = isset($_GET['placa']) ? trim($_GET['placa']) : '';
 $estadoetiq   = isset($_GET['estadoetiq']) ? trim($_GET['estadoetiq']) : '';
-
+// Permitir que el filtro acepte "CONFORME" como equivalente a 0
+if ($estadoetiq !== '' && mb_strtolower($estadoetiq, 'UTF-8') === 'conforme') {
+    $estadoetiq = '0';
+}
 if (in_array($tipo, ['ENTRADA','SALIDA','INVENTARIADO'], true)) {
     $where .= " AND m.clm_alm_mov_TIPO = ? ";
     $types .= 's'; $params[] = $tipo;
@@ -70,8 +87,13 @@ if ($buscar !== '') {
     array_push($params, $buscar, $buscar, $buscar, $buscar, $buscar, $buscar);
 }
 if ($placa !== '') {
-    $where .= " AND m.clm_alm_mov_placa LIKE CONCAT('%', ? COLLATE utf8mb4_unicode_ci, '%') ";
-    $types .= 's'; $params[] = $placa;
+    $where .= " AND (
+        pl.clm_placas_PLACA COLLATE utf8mb4_unicode_ci LIKE CONCAT('%', ? COLLATE utf8mb4_unicode_ci, '%')
+        OR pl.clm_placas_BUS  COLLATE utf8mb4_unicode_ci LIKE CONCAT('%', ? COLLATE utf8mb4_unicode_ci, '%')
+        OR CAST(m.clm_alm_mov_placa AS CHAR) LIKE CONCAT('%', ? COLLATE utf8mb4_unicode_ci, '%')
+    ) ";
+    $types .= 'sss';
+    array_push($params, $placa, $placa, $placa);
 }
 if ($estadoetiq !== '') {
     $where .= " AND m.clm_alm_movimientos_estadoetiq = ? ";
@@ -79,7 +101,7 @@ if ($estadoetiq !== '') {
 }
 
 // ---------- Paginación ----------
-$por_pagina = 25;
+$por_pagina = 100;
 $pagina = isset($_GET['pagina']) && is_numeric($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
 $offset = ($pagina - 1) * $por_pagina;
 
@@ -90,6 +112,7 @@ $count_sql = "
     JOIN tb_alm_producto p  ON p.clm_alm_producto_id = m.clm_alm_mov_idPRODUCTO
     JOIN tb_alm_categoria c ON p.clm_alm_producto_idCATEGORIA = c.clm_alm_categoria_id
     JOIN tb_alm_codigo cod  ON c.clm_alm_categoria_idCODIGO = cod.clm_alm_codigo_id
+    LEFT JOIN tb_placas pl ON pl.clm_placas_id = m.clm_alm_mov_placa    
     $where
 ";
 $stmt = $conn->prepare($count_sql);
@@ -114,11 +137,9 @@ $sum_sql = "
     JOIN tb_alm_producto p  ON p.clm_alm_producto_id = m.clm_alm_mov_idPRODUCTO
     JOIN tb_alm_categoria c ON p.clm_alm_producto_idCATEGORIA = c.clm_alm_categoria_id
     JOIN tb_alm_codigo cod  ON c.clm_alm_categoria_idCODIGO = cod.clm_alm_codigo_id
+    LEFT JOIN tb_placas pl ON pl.clm_placas_id = m.clm_alm_mov_placa    
     $where
 ";
-$neto_cantidad = floatval($sumas['cant_inventariado'] ?? 0) + floatval($sumas['cant_entradas'] ?? 0) - floatval($sumas['cant_salidas'] ?? 0);
-$neto_monto    = floatval($sumas['monto_inventariado'] ?? 0) + floatval($sumas['monto_entradas'] ?? 0) - floatval($sumas['monto_salidas'] ?? 0);
-
 $stmt = $conn->prepare($sum_sql);
 if($types){ $stmt->bind_param($types, ...$params); }
 $stmt->execute();
@@ -130,68 +151,11 @@ $neto_cantidad2 = (float)($sumas['cant_inventariado'] ?? 0)
                + (float)($sumas['cant_entradas'] ?? 0)
                - (float)($sumas['cant_salidas'] ?? 0);
 
+$neto_monto = (float)($sumas['monto_inventariado'] ?? 0)
+            + (float)($sumas['monto_entradas'] ?? 0)
+            - (float)($sumas['monto_salidas'] ?? 0);
+
 // ---------- Export CSV ----------
-
-// ---------- Export JSON (para PDF completo) ----------
-if (isset($_GET['export_json']) && $_GET['export_json'] == '1') {
-    header('Content-Type: application/json; charset=utf-8');
-
-    $exp_sql = "
-        SELECT 
-            m.clm_alm_mov_id,
-            m.clm_alm_mov_fecha_registro,
-            m.clm_alm_mov_TIPO,
-            p.clm_alm_producto_NOMBRE AS producto,
-            p.clm_alm_producto_codigo AS cod_prod,
-            c.clm_alm_categoria_NOMBRE AS categoria,
-            cod.clm_alm_codigo_NOMBRE AS codigo_categoria,
-            m.clm_alm_mov_cantidad,
-            m.clm_alm_mov_documento,
-            m.clm_mov_factura,
-            m.clm_mov_ruc,
-            m.clm_alm_mov_placa,
-            m.clm_alm_mov_idNOTA,
-            m.clm_alm_movimientos_estadoetiq,
-            m.clm_alm_mov_iduser,
-            m.clm_alm_mov_OBSERVACION
-        FROM tb_alm_movimientos m
-        JOIN tb_alm_producto p  ON p.clm_alm_producto_id = m.clm_alm_mov_idPRODUCTO
-        JOIN tb_alm_categoria c ON p.clm_alm_producto_idCATEGORIA = c.clm_alm_categoria_id
-        JOIN tb_alm_codigo cod  ON c.clm_alm_categoria_idCODIGO = cod.clm_alm_codigo_id
-        $where
-        ORDER BY m.clm_alm_mov_id DESC
-        LIMIT 50000
-    ";
-
-    $stmt = $conn->prepare($exp_sql);
-    if($types){ $stmt->bind_param($types, ...$params); }
-    $stmt->execute();
-    $r = $stmt->get_result();
-
-    $data = [];
-    while($row = $r->fetch_assoc()){
-        $data[] = $row;
-    }
-    $stmt->close();
-
-    echo json_encode([
-        'ok' => true,
-        'total' => count($data),
-        'rows' => $data,
-        'filters' => [
-            'tipo' => $tipo ?? '',
-            'desde' => $desde ?? '',
-            'hasta' => $hasta ?? '',
-            'categoria_id' => $categoria_id ?? 0,
-            'buscar' => $buscar ?? '',
-            'placa' => $placa ?? '',
-            'estadoetiq' => $estadoetiq ?? ''
-        ]
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
-}
-
 
 
 
@@ -199,6 +163,11 @@ if (isset($_GET['export_json']) && $_GET['export_json'] == '1') {
 
 
 if (isset($_GET['export']) && $_GET['export'] == '1') {
+    if (!$isAdmin) {
+        header("Location: movimientos_ofi.php");
+        exit();
+    }
+
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=movimientos_export.csv');
     $out = fopen('php://output', 'w');
@@ -207,7 +176,7 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
         SELECT 
             m.clm_alm_mov_id, m.clm_alm_mov_fecha_registro, m.clm_alm_mov_TIPO,
             p.clm_alm_producto_NOMBRE, p.clm_alm_producto_codigo,
-            c.clm_alm_categoria_NOMBRE, cod.clm_alm_codigo_NOMBRE,
+            c.clm_alm_categoria_DESCRIPCION, cod.clm_alm_codigo_NOMBRE,
             m.clm_alm_mov_cantidad, m.clm_alm_mov_monto,
             m.clm_alm_mov_documento, m.clm_mov_factura, m.clm_mov_ruc,
             m.clm_alm_mov_placa, m.clm_alm_mov_idNOTA, m.clm_alm_movimientos_estadoetiq, m.clm_alm_mov_iduser,
@@ -218,7 +187,7 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
         JOIN tb_alm_codigo cod  ON c.clm_alm_categoria_idCODIGO = cod.clm_alm_codigo_id
         $where
         ORDER BY m.clm_alm_mov_id DESC
-        LIMIT 50000
+        LIMIT 500000
     ";
     $stmt = $conn->prepare($exp_sql);
     if($types){ $stmt->bind_param($types, ...$params); }
@@ -234,15 +203,48 @@ $list_sql = "
     SELECT 
         m.clm_alm_mov_id, m.clm_alm_mov_fecha_registro, m.clm_alm_mov_TIPO,
         p.clm_alm_producto_NOMBRE AS producto, p.clm_alm_producto_codigo AS cod_prod,
-        c.clm_alm_categoria_NOMBRE AS categoria, cod.clm_alm_codigo_NOMBRE AS codigo_categoria,
+        c.clm_alm_categoria_DESCRIPCION AS categoria, cod.clm_alm_codigo_NOMBRE AS codigo_categoria,
         m.clm_alm_mov_cantidad, m.clm_alm_mov_monto,
         m.clm_alm_mov_documento, m.clm_mov_factura, m.clm_mov_ruc,
-        m.clm_alm_mov_placa, m.clm_alm_mov_idNOTA, m.clm_alm_movimientos_estadoetiq, m.clm_alm_mov_iduser,
+
+        m.clm_alm_mov_placa,
+        CASE
+          WHEN pl.clm_placas_id IS NOT NULL
+              AND TRIM(COALESCE(pl.clm_placas_BUS, '')) <> ''
+              AND TRIM(COALESCE(pl.clm_placas_PLACA, '')) <> ''
+          THEN CONCAT(TRIM(pl.clm_placas_BUS), ' (', TRIM(pl.clm_placas_PLACA), ')')
+
+          WHEN pl.clm_placas_id IS NOT NULL
+              AND TRIM(COALESCE(pl.clm_placas_BUS, '')) <> ''
+          THEN TRIM(pl.clm_placas_BUS)
+
+          WHEN pl.clm_placas_id IS NOT NULL
+              AND TRIM(COALESCE(pl.clm_placas_PLACA, '')) <> ''
+          THEN TRIM(pl.clm_placas_PLACA)
+
+          ELSE CAST(m.clm_alm_mov_placa AS CHAR)
+        END AS placa_label,
+
+        m.clm_alm_mov_idNOTA,
+        COALESCE(CAST(ns.clm_nota_sco AS CHAR), CAST(m.clm_alm_mov_idNOTA AS CHAR)) AS nota_label,
+        m.clm_alm_movimientos_estadoetiq,
+        CASE
+          WHEN COALESCE(NULLIF(TRIM(CAST(m.clm_alm_movimientos_estadoetiq AS CHAR)), ''), '0') = '0'
+          THEN 'CONFORME'
+          ELSE TRIM(CAST(m.clm_alm_movimientos_estadoetiq AS CHAR))
+        END AS estadoetiq_label,
+
+        m.clm_alm_mov_iduser,
+        COALESCE(NULLIF(TRIM(u.usuario),''), CAST(m.clm_alm_mov_iduser AS CHAR)) AS usuario_label,
         m.clm_alm_mov_OBSERVACION
     FROM tb_alm_movimientos m
     JOIN tb_alm_producto p  ON p.clm_alm_producto_id = m.clm_alm_mov_idPRODUCTO
     JOIN tb_alm_categoria c ON p.clm_alm_producto_idCATEGORIA = c.clm_alm_categoria_id
     JOIN tb_alm_codigo cod  ON c.clm_alm_categoria_idCODIGO = cod.clm_alm_codigo_id
+
+    LEFT JOIN tb_placas   pl ON pl.clm_placas_id   = m.clm_alm_mov_placa
+    LEFT JOIN tb_usuarios u  ON u.id_usuario = m.clm_alm_mov_iduser
+    LEFT JOIN tb_notas_salida ns ON ns.clm_nota_id = m.clm_alm_mov_idNOTA    
     $where
     ORDER BY m.clm_alm_mov_id DESC
     LIMIT ? OFFSET ?
@@ -274,8 +276,9 @@ $cat_rs = $conn->query("SELECT clm_alm_categoria_id AS id, clm_alm_categoria_NOM
     <meta charset="UTF-8">
     <title>Visualización de Movimientos | Norte 360°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="../img/norte360.png">    
+    <link rel="icon" href="../img/eyc.png">    
     <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">    
     <!-- Lector de códigos (QR/Code128/EAN/Code39, etc.) -->
@@ -1254,9 +1257,9 @@ margin: 20px
         th{position:sticky;top:0;background:#2c3e50;color:#fff;text-align:left;z-index:2}
         tr:hover{background:#f7fafc}
         .badge{padding:.3rem .5rem;border-radius:999px;font-weight:600;font-size:12px}
-        .b-in{background:#e8f7ee;color:#117a3d;border:1px solid #b9ebc9}
-        .b-out{background:#fde8e7;color:#b42318;border:1px solid #f5b5b2}
-        .b-estado{background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe}
+        .b-in{background:#e8f7ee;color:#117a3d;}
+        .b-out{background:#fde8e7;color:#b42318;}
+        .b-estado{background:#eef2ff;color:#3730a3;}
         .pagination{display:flex;gap:8px;justify-content:center;margin:18px 0}
         .pagination a,.pagination span{padding:8px 12px;border-radius:6px;font-weight:600;text-decoration:none}
         .pagination a{background:#3498db;color:#fff}
@@ -1366,7 +1369,7 @@ margin: 20px
 
 .stat-pill{
   display:inline-flex; align-items:center; gap:8px;
-  background:#111827; border:1px solid #233142; color:#e5e7eb;
+  background:#111827; color:#e5e7eb;
   padding:.35rem .65rem; border-radius:999px; font-size:.86rem; font-weight:700;
 }
 
@@ -1403,7 +1406,281 @@ margin: 20px
 .kpi-net { border-color:#06b6d4; }
 .kpi-net .ic { border-color:#0e7490; }
 
+
+
+/* =========================================================
+   REDISEÑO GERENCIAL - MOVIMIENTOS DE ALMACÉN
+   Mantiene lógica PHP actual; solo mejora lectura, orden y jerarquía visual.
+   ========================================================= */
+:root{
+  --eyc-bg:#eef3f8;
+  --eyc-ink:#0f172a;
+  --eyc-muted:#64748b;
+  --eyc-line:#dbe4ef;
+  --eyc-primary:#25364a;
+  --eyc-primary-2:#34495e;
+  --eyc-accent:#0ea5e9;
+  --eyc-green:#16a34a;
+  --eyc-red:#dc2626;
+  --eyc-orange:#f59e0b;
+  --eyc-card:#ffffff;
+}
+body{background:linear-gradient(180deg,#f7faff 0%,var(--eyc-bg) 42%,#eaf0f7 100%);color:var(--eyc-ink);}
+hr{display:none;}
+.main-content{padding:24px 26px 34px;margin-left:250px;}
+body.sidebar-collapsed .main-content{margin-left:0!important;}
+.wrap{width:100%;max-width:1680px;margin:0 auto;padding:0;}
+.mov-hero{max-width:1680px;margin:0 auto 18px;padding:22px 24px;border-radius:22px;background:radial-gradient(circle at top right,rgba(14,165,233,.24),transparent 34%),linear-gradient(135deg,#172033,#2c3e50 62%,#111827);color:#fff;box-shadow:0 18px 40px rgba(15,23,42,.18);display:grid;grid-template-columns:minmax(280px,1fr) auto;gap:18px;align-items:center;position:relative;overflow:hidden;}
+.mov-hero:after{content:"";position:absolute;left:24px;right:24px;bottom:0;height:3px;opacity:.9;border-radius:999px;}
+.mov-eyebrow{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.1);border-radius:999px;padding:6px 11px;font-weight:700;font-size:.82rem;color:#dbeafe;margin-bottom:10px;}
+.mov-hero h1{margin:0;font-size:clamp(1.55rem,2.2vw,2.35rem);font-weight:850;letter-spacing:-.04em;}
+.mov-hero p{margin:6px 0 0;color:#cbd5e1;max-width:700px;font-size:.98rem;}
+.mov-hero-right{display:grid;grid-template-columns:repeat(3,minmax(145px,1fr));gap:10px;min-width:min(650px,100%);}
+.hero-metric{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:13px 14px;backdrop-filter:blur(8px);}
+.hero-metric span{display:block;color:#cbd5e1;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.hero-metric strong{display:block;font-size:1.2rem;margin-top:4px;color:#fff;white-space:nowrap;}
+.hero-metric.accent{box-shadow:inset 0 0 0 1px rgba(14,165,233,.15);}
+.filters-toolbar{background:#fff!important;border:1px solid var(--eyc-line)!important;border-radius:18px!important;padding:16px!important;margin:0 0 14px!important;color:var(--eyc-ink)!important;box-shadow:0 12px 28px rgba(15,23,42,.08)!important;}
+.filters-toolbar .title{color:#172033;font-size:1rem;border-bottom:1px solid #e8eef6;padding-bottom:10px;margin-bottom:14px!important;}
+.filters-toolbar .title i{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:#e0f2fe;color:#0369a1;}
+.filters-row{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:10px!important;align-items:end;}
+.filters-toolbar .input-icon{grid-column:span 3;}
+.filters-toolbar .segmented{grid-column:span 6;}
+.filters-toolbar .quick{grid-column:span 6;}
+.filters-toolbar input.form-control,.filters-toolbar select.form-select{height:43px!important;background:#f8fafc!important;color:#0f172a!important;border:1px solid #dbe4ef!important;border-radius:12px!important;box-shadow:none!important;font-size:.9rem;}
+.filters-toolbar input.form-control:focus,.filters-toolbar select.form-select:focus{border-color:#0ea5e9!important;box-shadow:0 0 0 .18rem rgba(14,165,233,.13)!important;}
+.filters-toolbar .input-icon .bi{color:#64748b!important;z-index:1;}
+.filters-toolbar .segmented .btn{width:auto!important;border-radius:999px!important;color:#334155!important;border:1px solid #dbe4ef!important;background:#fff!important;font-weight:700!important;font-size:.83rem;height:37px!important;display:inline-flex;align-items:center;gap:6px;}
+.filters-toolbar .segmented .btn-check:checked + .btn{background:#172033!important;border-color:#172033!important;color:#fff!important;}
+.filters-toolbar .quick .chip{background:#f8fafc!important;color:#334155!important;border:1px solid #dbe4ef!important;font-weight:700;}
+.filters-toolbar .quick .chip:hover{background:#e0f2fe!important;border-color:#7dd3fc!important;color:#075985!important;}
+.filters-toolbar .actions{margin-top:12px!important;}
+.filters-toolbar .actions button{width:auto!important;border-radius:12px!important;padding:0 16px!important;font-weight:800!important;}
+.filters-toolbar .btn-apply{background:#0ea5e9!important;border-color:#0ea5e9!important;color:#fff!important;}
+.filters-toolbar .btn-reset{background:#f8fafc!important;color:#334155!important;border:1px solid #dbe4ef!important;}
+.actionbar{background:#fff!important;border:1px solid var(--eyc-line)!important;border-radius:18px!important;color:#0f172a!important;box-shadow:0 12px 28px rgba(15,23,42,.07)!important;margin:0 0 14px!important;}
+.actionbar button,.actionbar a{width:auto!important;}
+.btn-solid,.btn-soft,.btn-ghost{border-radius:12px!important;height:40px!important;padding:.45rem .82rem!important;font-size:.9rem;}
+.btn-solid{background:#172033!important;border-color:#172033!important;color:#fff!important;}
+.btn-soft,.btn-ghost{background:#f8fafc!important;color:#334155!important;border-color:#dbe4ef!important;}
+.stat-pill{background:#f8fafc!important;color:#334155!important;}
+.kpis-pro{grid-template-columns:repeat(5,minmax(170px,1fr))!important;gap:12px!important;margin:0 0 14px!important;}
+.kpi-card{background:#fff!important;border:1px solid #dbe4ef!important;color:#0f172a!important;border-radius:18px!important;box-shadow:0 12px 28px rgba(15,23,42,.07)!important;position:relative;overflow:hidden;}
+.kpi-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#334155;}
+.kpi-in:before{background:var(--eyc-green)}.kpi-out:before{background:var(--eyc-red)}.kpi-inv:before{background:var(--eyc-orange)}.kpi-net:before{background:#06b6d4}
+.kpi-card .ic{background:#f8fafc!important;border:1px solid #e2e8f0!important;color:#172033!important;}
+.kpi-card .meta .label{color:#64748b!important;font-weight:800;text-transform:uppercase;letter-spacing:.035em;font-size:.72rem!important;}
+.kpi-card .meta .value{color:#0f172a!important;font-size:1.35rem!important;}
+.kpi-card .meta .sub{color:#64748b!important;}
+.mov-table-card{margin:0!important;padding:0!important;border:1px solid var(--eyc-line)!important;border-radius:20px!important;overflow:hidden;box-shadow:0 18px 40px rgba(15,23,42,.10)!important;background:#fff!important;}
+.table-head-pro{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 18px;border-bottom:1px solid #e8eef6;background:linear-gradient(180deg,#fff,#f8fafc);}
+.table-head-pro h3{margin:0;font-size:1.05rem;color:#172033;font-weight:850;display:flex;align-items:center;gap:8px;}
+.table-head-pro p{margin:3px 0 0;color:#64748b;font-size:.86rem;}
+.table-head-count{background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:7px 11px;font-size:.84rem;font-weight:800;white-space:nowrap;}
+.table-shell{margin-top:0!important;}
+.table-wrap{max-height:calc(150vh - 360px);min-height:340px;overflow:auto!important;padding-bottom:10px;background:#fff;}
+.mov-table{
+  min-width:1450px!important;
+  width:100%;
+  table-layout:fixed!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+/* ==== ANCHOS PRO PARA TABLA SIN DOCUMENTO / FACTURA / RUC / CÓDIGO CAT ==== */
+.mov-table{
+  min-width:1380px!important;
+  width:100%;
+  table-layout:fixed!important;
+  border-collapse:separate!important;
+  border-spacing:0!important;
+}
+
+.mov-table th,
+.mov-table td{
+  border-right:0!important;
+}
+
+.mov-table th{
+  text-align:center!important;
+  vertical-align:middle!important;
+}
+
+.mov-table th:nth-child(4),
+.mov-table th:nth-child(6),
+.mov-table th:nth-child(12){
+  text-align:left!important;
+}
+
+/* ID */
+.mov-table th:nth-child(1),
+.mov-table td:nth-child(1){ width:72px; }
+
+/* Fecha */
+.mov-table th:nth-child(2),
+.mov-table td:nth-child(2){ width:150px; }
+
+/* Tipo */
+.mov-table th:nth-child(3),
+.mov-table td:nth-child(3){ width:125px; }
+
+/* Producto */
+.mov-table th:nth-child(4),
+.mov-table td:nth-child(4){ width:200px; }
+
+/* Código */
+.mov-table th:nth-child(5),
+.mov-table td:nth-child(5){ width:105px; }
+
+/* Categoría completa */
+.mov-table th:nth-child(6),
+.mov-table td:nth-child(6){ width:100px; }
+
+/* Cantidad */
+.mov-table th:nth-child(7),
+.mov-table td:nth-child(7){ width:95px; }
+
+/* Placa */
+.mov-table th:nth-child(8),
+.mov-table td:nth-child(8){ width:110px; }
+
+/* Nota */
+.mov-table th:nth-child(9),
+.mov-table td:nth-child(9){ width:90px; }
+
+/* Estado */
+.mov-table th:nth-child(10),
+.mov-table td:nth-child(10){ width:120px; }
+
+/* Usuario */
+.mov-table th:nth-child(11),
+.mov-table td:nth-child(11){ width:110px; }
+
+/* Observación */
+.mov-table th:nth-child(12),
+.mov-table td:nth-child(12){ width:220px; }
+
+/* Acciones */
+.mov-table th:nth-child(13),
+.mov-table td:nth-child(13){ width:130px; }
+
+.cell-category{
+  font-weight:750;
+  color:#334155!important;
+  white-space:normal!important;
+  line-height:1.25;
+}
+
+
+.mov-table th{position:sticky;top:0;z-index:4;background:#172033!important;color:#fff!important;border-bottom:0!important;padding:12px 12px!important;font-size:.78rem!important;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+.mov-table td{padding:12px 12px!important;border-bottom:1px solid #eef2f7!important;color:#243447!important;font-size:.88rem!important;vertical-align:middle!important;background:#fff;}
+.mov-table tbody tr:hover td{background:#f8fbff!important;}
+.mov-table tbody tr.row-entrada td:first-child{box-shadow:inset 5px 0 0 var(--eyc-green);}
+.mov-table tbody tr.row-salida td:first-child{box-shadow:inset 5px 0 0 var(--eyc-red);}
+.mov-table tbody tr.row-inventariado td:first-child{box-shadow:inset 5px 0 0 var(--eyc-orange);}
+.cell-id span{display:inline-flex;color:#334155;border-radius:999px;padding:5px 9px;font-weight:850;}
+.cell-date{white-space:nowrap;color:#475569!important;}
+.cell-product{min-width:250px;}
+.cell-product strong{display:block;color:#0f172a;font-weight:850;line-height:1.2;}
+.cell-product small{display:block;color:#64748b;margin-top:3px;}
+.code-pill{display:inline-flex;align-items:center;justify-content:center;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:999px;padding:5px 9px;font-weight:850;font-size:.78rem;white-space:nowrap;}
+.code-pill.soft{background:#f8fafc;border-color:#dbe4ef;color:#475569;}
+.cell-qty strong{display:block;font-size:.98rem;color:#0f172a;}
+.cell-qty small{display:block;color:#64748b;margin-top:2px;}
+.cell-doc{max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155;}
+.cell-bus{white-space:nowrap;font-weight:750;color:#0f172a;}
+.obs{
+  max-width:none!important;
+  white-space:normal!important;
+  line-height:1.35;
+  display:table-cell!important;
+  overflow:visible!important;
+}
+
+.obs-text{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  line-height:1.35;
+}
+.badge{border-radius:999px!important;padding:.42rem .62rem!important;font-weight:850!important;letter-spacing:.02em;}
+.b-in{background:#dcfce7!important;color:#166534!important;}
+.b-out{background:#fee2e2!important;color:#991b1b!important;}
+.badge.b-inv{background:#ffedd5!important;color:#9a3412!important;}
+.b-estado{background:#eef2ff!important;color:#3730a3!important;}
+.mov-row-actions{white-space:nowrap;}
+.btn-note{width:auto!important;background:#eff6ff!important;color:#1d4ed8!important;border-radius:11px!important;padding:8px 10px!important;font-size:.82rem!important;font-weight:850!important;display:inline-flex;align-items:center;gap:6px;}
+.btn-note:hover{background:#dbeafe!important;}
+.no-action{color:#94a3b8;font-weight:700;}
+.slide-ctrl{width:38px!important;height:38px!important;padding:0!important;background:#fff!important;color:#172033!important;border:1px solid #dbe4ef!important;box-shadow:0 8px 18px rgba(15,23,42,.14)!important;}
+.pagination{padding:14px 16px;margin:0!important;background:#f8fafc;border-top:1px solid #e8eef6;}
+.pagination a,.pagination span{border-radius:10px!important;text-decoration:none!important;}
+.pagination a{background:#fff!important;color:#334155!important;border:1px solid #dbe4ef;}
+.pagination a:hover{background:#172033!important;color:#fff!important;}
+.pagination .curr{background:#172033!important;color:#fff!important;border:1px solid #172033;}
+@media(max-width:1200px){.mov-hero{grid-template-columns:1fr}.mov-hero-right{grid-template-columns:repeat(3,1fr);min-width:0}.filters-toolbar .input-icon{grid-column:span 6}.filters-toolbar .segmented,.filters-toolbar .quick{grid-column:span 12}.kpis-pro{grid-template-columns:repeat(2,1fr)!important}.main-content{padding:18px;margin-left:0!important;}}
+@media(max-width:680px){.mov-hero-right{grid-template-columns:1fr}.filters-toolbar .input-icon{grid-column:span 12}.kpis-pro{grid-template-columns:1fr!important}.table-head-pro{align-items:flex-start;flex-direction:column}.table-wrap{max-height:none}.mov-hero{padding:18px}.main-content{padding:14px;}}
+@media print{.main-header,.nav-bar-pro,.menu-lateral,.sidebar-show-btn,.menu-toggle,.actionbar,.filters-toolbar,.slide-ctrl,.btn-flotante,.main-footer{display:none!important}.main-content{margin-left:0!important;padding:0!important}.mov-hero{box-shadow:none!important;color:#0f172a!important;background:#fff!important;border:1px solid #dbe4ef}.mov-hero p,.mov-eyebrow,.hero-metric span{color:#334155!important}.hero-metric strong{color:#0f172a!important}.table-wrap{max-height:none!important;overflow:visible!important}.mov-table{min-width:100%!important}.mov-table th{background:#172033!important;color:#fff!important}}
+/* =========================================================
+   MODAL NOTA DE ALMACÉN ENCIMA DEL DRAWER
+   ========================================================= */
+#modal-nota{
+  z-index:1000005!important;
+  background:rgba(15,23,42,.62)!important;
+  backdrop-filter:blur(4px);
+}
+
+#modal-nota .modal-content{
+  position:relative!important;
+  z-index:1000006!important;
+  max-width:940px!important;
+  width:min(940px, 92vw)!important;
+  margin:4.5vh auto!important;
+  border-radius:22px!important;
+  padding:28px!important;
+  background:#fff!important;
+  box-shadow:0 28px 70px rgba(15,23,42,.36)!important;
+  animation:notaPop .22s ease both!important;
+}
+
+#modal-nota .cerrar{
+  position:absolute!important;
+  top:14px!important;
+  right:16px!important;
+  z-index:1000007!important;
+  width:38px!important;
+  height:38px!important;
+  border-radius:12px!important;
+  display:grid!important;
+  place-items:center!important;
+  background:#111827!important;
+  color:#fff!important;
+  font-size:24px!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+
+#modal-nota .cerrar:hover{
+  background:#dc2626!important;
+  color:#fff!important;
+}
+
+@keyframes notaPop{
+  from{
+    opacity:0;
+    transform:translateY(12px) scale(.98);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
     </style>
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/header_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/sidebar_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/main_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/footer_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/content_eyc.css') ?>">
 </head>
 
 <body>
@@ -1417,98 +1694,38 @@ margin: 20px
 
     $edad = calcularEdad("2000-04-12"); // ejemplo
   ?>
-  <header class="main-header animated-border">
-    <div class="header-content">
-      <a href="../index.php"">
-          <div class="logo-bloque">
-              <img src="../img/norte360.png" alt="Logo Empresa" class="logo-header">
-          </div>
-      </a>
-      <div class="separador-vertical"></div>
-      <a href="javascript:location.reload()">
-          <div class="logo-bloque">
-          <img src="../img/completo.png" alt="Logo Sistema" class="logo-header2">
-          </div>
-      </a>
-      <div class="usuario-contenedor" style="margin-left:auto; position: relative;">
-        <div class="usuario-barra" onclick="toggleDropdown()">
-          <span>Hola, <?= htmlspecialchars($_SESSION['usuario']) ?></span>
-          <img src="../img/icons/user.png" alt="Usuario">
-        </div>
-        <div class="usuario-dropdown" id="usuarioDropdown">
-          <p><strong>Nombre:</strong> <?= htmlspecialchars($_SESSION['usuario']) ?></p>
-          <p><strong>DNI:</strong> <?= htmlspecialchars($_SESSION['DNI']) ?></p>
-          <p><strong>Edad:</strong> <?= $edad ?> años</p>
-          <hr style="background: linear-gradient(120deg, #2980b9 30%, black 50%, #2980b9 70%); margin: 12px 0; border: none; border-top: 1px solid #eee;">
-          <p><strong>Rol:</strong> <?= htmlspecialchars($_SESSION['web_rol']) ?></p>
-          <a href="../login/logout.php" class="btn-logout-dropdown">Cerrar sesión</a>
-        </div>
-      </div>
-    </div>
-  </header>
+  <?php eyc_render_header(['title' => 'Movimientos de almacen', 'subtitle' => 'Inventario operativo']); ?>
 
-  <nav id="nav-modulos" class="nav-bar-pro">
-    <ul class="nav-list-pro">
-    <?php
-      if ($_SESSION['web_rol'] === 'Admin' || in_array(6, $permisos)) {
-          echo '<li><a href="#" onclick="mostrarSubmenu(\'modulo-personal\')">👥 Recursos Humanos</a></li>';
-      }
-      if ($_SESSION['web_rol'] === 'Admin' || in_array(5, $permisos)) {
-          echo '<li><a href="#" onclick="mostrarSubmenu(\'modulo-mantenimiento\')">🔧 Mantenimiento</a></li>';
-      }
-      if ($_SESSION['web_rol'] === 'Admin' || in_array(3, $permisos)) {
-          echo '<li><a href="#" onclick="mostrarSubmenu(\'modulo-inventario\')">📦 Inventario</a></li>';
-      }
-    ?>
-    </ul>
-  </nav>
+<?php eyc_render_sidebar(); ?>
 
-  <div id="modulo-personal" class="subnav" style="display: none;">
-    <a href="../01_contratos/nregrcdn_h.php">➕ Nuevo Trabajador</a>
-    <a href="../01_entrevistas/reentrev.php">➕ Nueva Entrevista</a>
-    <a href="../01_contratos/documentacion/agregadocu.php">➕ Nueva Documentación</a>
-    <a href="../01_contratos/nlaskdrcdn_h.php">👤 Personal</a>
-    <a href="../01_entrevistas/bvisentrevisaf.php">📝 Entrevistas</a>
-    <a href="../01_contratos/dorrhcdn.php">📁 Documentación</a>
-  </div>
-
-  <div id="modulo-inventario" class="subnav" style="display: none;">
-    <a href="../01_almacen/scanner.php"> 🏷️ Código de Barra</a>
-    <a href="../01_almacen/gen_np9823.php">📋 Productos</a>
-  </div>
-  <div id="modulo-mantenimiento" class="subnav" style="display: none;">
-    <a href="../01_amantenimiento\lista_cheklist.php">📝 CheckList</a>
-  </div>
-
-  <button class="menu-toggle" id="btnMenuToggle" onclick="toggleMenu()" aria-label="Menú"><span></span><span></span><span></span></button>
-
-  <!-- SIDEBAR FIJO EN DESKTOP -->
-  <nav class="menu-lateral" id="menuLateral">
-    <button class="sidebar-toggle-btn" id="btnHideSidebar" aria-label="Ocultar menú">
-      <i class="bi bi-chevron-left"></i>
-    </button>
-
-    <div class="menu-logo">
-      <img src="../img/norte360_black.png" alt="Logo" style="height:40px; vertical-align: middle;">
-      <span class="fw-bold ms-2" style="color:#2c3e50;">Norte 360°</span>
-    </div>
-    <ul class="menu-list">
-      <h3>Inventario</h3>
-      <li><a href="gen_np9823.php"><i class="bi bi-boxes me-2"></i> Catálogo Productos</a></li>
-      <li><a href="scanner.php"><i class="bi bi-upc-scan me-2"></i> Código de Barras</a></li>
-      <li><a href="movimientos_ofi.php"><i class="bi bi-arrow-left-right me-2"></i> Movimientos</a></li>
-    </ul>
-  </nav>
-  <button class="sidebar-show-btn" id="sidebarShowBtn" aria-label="Mostrar menú">
-    <i class="bi bi-chevron-right"></i>
-  </button>
-
-  <hr>
-
-<div class="main-content">
+<div class="main-content eyc-main eyc-main--module">
+<?php eyc_render_content_separator('top'); ?>
 <main>
 
-  <h2>📋 Vista General de Movimientos</h2>
+  <section class="mov-hero">
+    <div class="mov-hero-left">
+      <div class="mov-eyebrow"><i class="bi bi-box-seam"></i> Almacén · Control de inventario</div>
+      <h1>Movimientos de Almacén</h1>
+      <p>Panel de entradas, salidas e inventariados con lectura rápida para supervisión y gerencia.</p>
+    </div>
+
+    <?php if ($isAdmin): ?>
+    <div class="mov-hero-right">
+      <div class="hero-metric">
+        <span>Registros filtrados</span>
+        <strong><?= number_format($total) ?></strong>
+      </div>
+      <div class="hero-metric">
+        <span>Saldo neto cantidad</span>
+        <strong><?= number_format($neto_cantidad2, 2) ?></strong>
+      </div>
+      <div class="hero-metric accent">
+        <span>Saldo valorizado</span>
+        <strong>S/ <?= number_format($neto_monto, 2) ?></strong>
+      </div>
+    </div>
+    <?php endif; ?>
+  </section>
 
 
 
@@ -1559,7 +1776,7 @@ margin: 20px
     <!-- Búsqueda libre -->
     <div class="input-icon">
       <i class="bi bi-search"></i>
-      <input type="text" name="buscar" value="<?=$buscar?>" class="form-control" placeholder="Producto, código, doc, RUC, factura">
+      <input type="text" name="buscar" value="<?=$buscar?>" class="form-control" placeholder="Producto, código o grupo">
     </div>
 
     <!-- Tipo (segmentado) -->
@@ -1614,20 +1831,21 @@ margin: 20px
 <!-- ACTION BAR -->
 <div class="actionbar">
   <div class="left">
+    <?php if ($isAdmin): ?>
     <a class="btn-solid" href="?<?php $q=$_GET; $q['export']=1; echo h(http_build_query($q)); ?>">
       <i class="bi bi-download"></i> Exportar CSV
     </a>
+    <?php endif; ?>
 
     <button type="button" class="btn-soft" onclick="window.print()">
       <i class="bi bi-printer"></i> Imprimir
     </button>
-<button type="button" class="btn-soft" onclick="exportarPDFMovimientos('pagina')">
-  <i class="bi bi-filetype-pdf"></i> PDF (Página)
-</button>
-
-<button type="button" class="btn-ghost" onclick="exportarPDFMovimientos('completo')">
-  <i class="bi bi-filetype-pdf"></i> PDF (Todo filtrado)
-</button>
+    
+    <?php if ($isAdmin): ?>
+    <button type="button" class="btn-soft" onclick="exportarPDFMovimientos()">
+      <i class="bi bi-filetype-pdf"></i> Exportar PDF
+    </button>
+    <?php endif; ?>
 
     <a class="btn-ghost" href="movimientos_ofi.php">
       <i class="bi bi-arrow-counterclockwise"></i> Limpiar
@@ -1635,7 +1853,9 @@ margin: 20px
   </div>
 
   <div class="right">
+    <?php if ($isAdmin): ?>
     <span class="stat-pill"><i class="bi bi-collection"></i> Registros: <?= number_format($total) ?></span>
+    <?php endif; ?>
     <?php if(!empty($tipo)): ?>
       <span class="stat-pill"><i class="bi bi-diagram-3"></i> Tipo: <?= h($tipo) ?></span>
     <?php endif; ?>
@@ -1649,6 +1869,7 @@ margin: 20px
 
 
 <!-- KPIs PRO -->
+<?php if ($isAdmin): ?>
 <div class="kpis-pro">
   <!-- Total registros -->
   <div class="kpi-card kpi-total">
@@ -1711,17 +1932,25 @@ margin: 20px
 
 
 </div>
+<?php endif; ?>
 
 
     </div>
 
 
-    <div class="card">
+    <div class="card mov-table-card">
+        <div class="table-head-pro">
+          <div>
+            <h3><i class="bi bi-list-check"></i> Detalle de movimientos</h3>
+            <p>Vista operativa con trazabilidad de producto, unidad, usuario y observación.</p>
+          </div>
+          <div class="table-head-count">Página <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></div>
+        </div>
         <!-- Tabla con deslizamiento -->
         <div class="table-shell">
             <button type="button" class="slide-ctrl slide-left" onclick="scrollTbl(-1)" title="Deslizar izquierda"><i class="bi bi-chevron-left"></i></button>
             <div class="table-wrap" id="tblWrap">
-                <table>
+                <table class="mov-table">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -1730,11 +1959,7 @@ margin: 20px
                             <th>Producto</th>
                             <th>Código</th>
                             <th>Categoría</th>
-                            <th>Código Cat</th>
                             <th class="text-end">Cantidad</th>
-                            <th>Documento</th>
-                            <th>Factura</th>
-                            <th>RUC</th>
                             <th>Placa</th>
                             <th>Nota</th>
                             <th>Estado</th>
@@ -1745,11 +1970,15 @@ margin: 20px
                     </thead>
                     <tbody>
                     <?php if(!$rows): ?>
-                        <tr><td colspan="18" class="text-center text-muted">Sin resultados.</td></tr>
+                        <tr><td colspan="13" class="text-center text-muted py-4">Sin resultados con los filtros actuales.</td></tr>
                     <?php else: foreach($rows as $r): ?>
-                        <tr>
-                            <td><?=h($r['clm_alm_mov_id'])?></td>
-                            <td><?=h($r['clm_alm_mov_fecha_registro'])?></td>
+                        <?php
+                          $tipoRow = strtoupper(trim($r['clm_alm_mov_TIPO'] ?? ''));
+                          $rowClass = $tipoRow === 'ENTRADA' ? 'row-entrada' : ($tipoRow === 'SALIDA' ? 'row-salida' : ($tipoRow === 'INVENTARIADO' ? 'row-inventariado' : ''));
+                        ?>
+                        <tr class="mov-row <?= $rowClass ?>">
+                            <td class="cell-id"><span>#<?=h($r['clm_alm_mov_id'])?></span></td>
+                            <td class="cell-date"><i class="bi bi-calendar3"></i> <?=h($r['clm_alm_mov_fecha_registro'])?></td>
                             <td>
                               <?php if($r['clm_alm_mov_TIPO']==='ENTRADA'): ?>
                                 <span class="badge b-in">ENTRADA</span>
@@ -1762,24 +1991,31 @@ margin: 20px
                               <?php endif; ?>
                             </td>
 
-                            <td><?=h($r['producto'])?></td>
-                            <td><?=h($r['cod_prod'])?></td>
-                            <td><?=h($r['categoria'])?></td>
-                            <td><?=h($r['codigo_categoria'])?></td>
-                            <td class="text-end"><?=number_format((float)$r['clm_alm_mov_cantidad'],2)?></td>
-                            <td><?=h($r['clm_alm_mov_documento'])?></td>
-                            <td><?=h($r['clm_mov_factura'])?></td>
-                            <td><?=h($r['clm_mov_ruc'])?></td>
-                            <td><?=h($r['clm_alm_mov_placa'])?></td>
-                            <td><?=h($r['clm_alm_mov_idNOTA'])?></td>
-                            <td><span class="badge b-estado"><?=h($r['clm_alm_movimientos_estadoetiq'])?></span></td>
-                            <td><?=h($r['clm_alm_mov_iduser'])?></td>
-                            <td class="obs" title="<?=h($r['clm_alm_mov_OBSERVACION'])?>"><?=h($r['clm_alm_mov_OBSERVACION'])?></td>
-                            <td class="d-flex gap-2">
+                            <td class="cell-product"><strong><?=h($r['producto'])?></strong><small><?=h($r['categoria'])?></small></td>
+                            <td><span class="code-pill"><?=h($r['cod_prod'])?></span></td>
+                            <td class="cell-category">
+                              <?=h((!empty($r['codigo_categoria']) ? '(' . $r['codigo_categoria'] . ') ' : '') . ($r['categoria'] ?? '-'))?>
+                            </td>
+                            <td class="text-end cell-qty">
+                              <strong><?=number_format((float)$r['clm_alm_mov_cantidad'],2)?></strong>
+                              <?php if ($isAdmin): ?>
+                                <small>S/ <?=number_format((float)($r['clm_alm_mov_monto'] ?? 0),2)?></small>
+                              <?php endif; ?>
+                            </td>
+                            <td class="cell-bus"><i class="bi bi-bus-front"></i> <?=h($r['placa_label'] ?: '-')?></td>
+                            <td><?=h($r['nota_label'] ?: '-')?></td>
+                            <td><span class="badge b-estado"><?= h($r['estadoetiq_label'] ?? 'CONFORME') ?></span></td>
+                            <td><?=h($r['usuario_label'])?></td>
+                            <td class="obs" title="<?=h($r['clm_alm_mov_OBSERVACION'])?>">
+                              <div class="obs-text"><?=h($r['clm_alm_mov_OBSERVACION'])?></div>
+                            </td>
+                            <td class="mov-row-actions">
                                 <?php if(!empty($r['clm_alm_mov_idNOTA'])): ?>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="verNotaSalida(<?= (int)$r['clm_alm_mov_id']?>)">
+                                    <button class="btn-note" onclick="verNotaSalida(<?= (int)$r['clm_alm_mov_id']?>)">
                                         <i class="bi bi-file-earmark-text"></i> Ver Nota
                                     </button>
+                                <?php else: ?>
+                                    <span class="no-action">—</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -1843,29 +2079,34 @@ margin: 20px
 
 
 
-  <a href="https://wa.me/51944532822?text=Hola%2C%20quisiera%20hacer%20una%20consulta%20sobre%20una%20etiqueta.%20Agradezco%20su%20atención." class="btn-flotante" target="_blank" title="Soporte por WhatsApp">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Soporte" style="width:30px; height:30px;">
-  </a>
 
-  <footer class="main-footer animated-border">
-    <div class="footer-top">
-      <img src="../img/norte360.png" alt="Logo Empresa" class="logo-header3">
-      <div class="footer-info">
-        <p class="footer-title">Contáctanos</p>
-        <div class="footer-cajas">
-          <div class="footer-box"><img src="../img/icons/facebook.png" alt="Función 1"></div>
-          <div class="footer-box"><img src="../img/icons/social.png" alt="Función 2"></div>
-        </div>
-      </div>
-    </div>
-    <p class="footer-copy">© <?= date('Y') ?> Norte 360° (v1.0.6). Todos los derechos reservados.</p>
-  </footer>
+<?php eyc_render_content_separator('bottom'); ?>
 
+<?php eyc_render_footer(); ?>
 
-
-</body>
+<script>
+window.eyc_NOTA_PDF_CONFIG = {
+  endpoint: '<?= h(eyc_base_url('php/nota_pdf_data.php')) ?>',
+  userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
+  dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
+  logoTicket: '<?= h(eyc_base_url('img/completo.png')) ?>',
+  footerLabel: 'NORTE 360'
+};
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/header_eyc.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
+</body>
+<?php if ($isAdmin): ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<?php endif; ?>
 
 <script>
 function limpiarFiltrosMov(){
@@ -1903,69 +2144,6 @@ function setQuickRange(preset){
 
 
 <script>
-function mostrarSubmenu(id) {
-  const seleccionado = document.getElementById(id);
-  const estaVisible = seleccionado && seleccionado.style.display === 'flex';
-
-  document.querySelectorAll('.subnav').forEach(el => el.style.display = 'none');
-
-  if (!estaVisible && seleccionado) {
-    seleccionado.style.display = 'flex';
-  }
-}
-
-function toggleDropdown() {
-  const dropdown = document.getElementById("usuarioDropdown");
-  dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-}
-
-// Cierra si haces clic fuera
-document.addEventListener("click", function (e) {
-  const barra = document.querySelector(".usuario-barra");
-  const dropdown = document.getElementById("usuarioDropdown");
-
-  if (!barra.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.style.display = "none";
-  }
-});
-
-function toggleMenu() {
-  const menu = document.querySelector('.menu-lateral');
-  menu.classList.toggle('active');
-}
-  (function () {
-    const body = document.body;
-    const hideBtn = document.getElementById('btnHideSidebar');
-    const showBtn = document.getElementById('sidebarShowBtn');
-    const STORAGE_KEY = 'sidebarCollapsed';
-
-    function setSidebar(collapsed) {
-      body.classList.toggle('sidebar-collapsed', collapsed);
-      try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
-    }
-
-    // Estado inicial desde localStorage (solo aplica en escritorio)
-    const prefersCollapsed = (localStorage.getItem(STORAGE_KEY) === '1');
-    if (window.matchMedia('(min-width: 992px)').matches && prefersCollapsed) {
-      setSidebar(true);
-    }
-
-    // Eventos
-    if (hideBtn) hideBtn.addEventListener('click', () => setSidebar(true));
-    if (showBtn) showBtn.addEventListener('click', () => setSidebar(false));
-
-    // Si cambias de tamaño de ventana, respeta el estado en escritorio y limpia en móvil
-    window.addEventListener('resize', () => {
-      if (window.matchMedia('(min-width: 992px)').matches) {
-        const collapsed = (localStorage.getItem(STORAGE_KEY) === '1');
-        body.classList.toggle('sidebar-collapsed', collapsed);
-      } else {
-        body.classList.remove('sidebar-collapsed'); // en móvil usamos tu menú responsive existente
-      }
-    });
-  })();
-</script>
-<script>
     function scrollTbl(dir){
   const wrap = document.getElementById('tblWrap');
   const step = Math.max(300, wrap.clientWidth * 0.7);
@@ -1974,20 +2152,67 @@ function toggleMenu() {
 </script>
 <script>
 function verMovimientos(id_producto) {
-  fetch('../php/ver_movimientos_producto.php?id=' + id_producto)
+  const modal = document.getElementById('modal-movimientos');
+  const contenido = document.getElementById('contenido-movimientos');
+
+  if (!modal || !contenido) return;
+
+  contenido.innerHTML = `
+    <div class="drawer-loading">
+      <div class="spinner"></div>
+      <strong>Cargando movimientos del producto...</strong>
+      <small>Un momento por favor</small>
+    </div>
+  `;
+
+  modal.classList.add('active');
+  document.body.classList.add('drawer-open');
+
+  fetch('../php/ver_movimientos_producto.php?id=' + encodeURIComponent(id_producto))
     .then(response => response.text())
     .then(data => {
-      document.getElementById('contenido-movimientos').innerHTML = data;
-      document.getElementById('modal-movimientos').style.display = 'block';
+      contenido.innerHTML = data;
     })
     .catch(error => {
-      document.getElementById('contenido-movimientos').innerHTML = '❌ Error al cargar movimientos.';
+      contenido.innerHTML = `
+        <div class="drawer-loading">
+          <strong style="color:#dc2626;">Error al cargar movimientos.</strong>
+          <small>Intenta nuevamente.</small>
+        </div>
+      `;
     });
 }
 
 function cerrarModal() {
-  document.getElementById('modal-movimientos').style.display = 'none';
+  const modal = document.getElementById('modal-movimientos');
+  const contenido = document.getElementById('contenido-movimientos');
+
+  if (!modal) return;
+
+  modal.classList.remove('active');
+  document.body.classList.remove('drawer-open');
+
+  setTimeout(() => {
+    if (contenido) contenido.innerHTML = 'Cargando movimientos...';
+  }, 350);
 }
+
+document.addEventListener('click', function(e){
+  const modal = document.getElementById('modal-movimientos');
+
+  if (modal && e.target === modal && modal.classList.contains('active')) {
+    cerrarModal();
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  const modal = document.getElementById('modal-movimientos');
+
+  if (modal && e.key === 'Escape' && modal.classList.contains('active')) {
+    cerrarModal();
+  }
+});
+
 </script>
 <script>
 function verNotaSalida(id_movimiento) {
@@ -1998,13 +2223,20 @@ function verNotaSalida(id_movimiento) {
       document.getElementById('modal-nota').style.display = 'block';
     })
     .catch(error => {
-      document.getElementById('contenido-nota').innerHTML = '❌ Error al cargar Nota de Salida.';
+      document.getElementById('contenido-nota').innerHTML = 'No se pudo cargar la nota.';
     });
 }
 
 function cerrarNotaModal() {
   document.getElementById('modal-nota').style.display = 'none';
 }
+document.addEventListener('click', function(e){
+  const modalNota = document.getElementById('modal-nota');
+
+  if (modalNota && e.target === modalNota && modalNota.style.display === 'block') {
+    cerrarNotaModal();
+  }
+});
 </script>
 
 <script>
@@ -2030,9 +2262,10 @@ function cerrarNotaModal() {
 })();
 </script>
 
+<?php if ($isAdmin): ?>
 <script>
 
-async function exportarPDFMovimientos(modo = 'pagina') {
+async function exportarPDFMovimientos() {
   const { jsPDF } = window.jspdf;
 
   // ========= Helpers =========
@@ -2087,44 +2320,31 @@ async function exportarPDFMovimientos(modo = 'pagina') {
   })();
 
   // ========= Data: página o completo =========
-  let rows = [];
+  const rows = [];
 
-  if (modo === 'completo') {
-    const url = new URL(window.location.href);
-    url.searchParams.set('export_json', '1');
-    url.searchParams.delete('pagina');
+  document.querySelectorAll('table tbody tr').forEach(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length < 13) return; // tu tabla tiene 13 columnas (incluye Acciones)
 
-    const res = await fetch(url.toString(), { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) { alert('No se pudo obtener la data para el PDF completo.'); return; }
+    rows.push({
+      clm_alm_mov_id: (tds[0]?.textContent ?? '').trim(),
+      clm_alm_mov_fecha_registro: (tds[1]?.textContent ?? '').trim(),
+      clm_alm_mov_TIPO: (tds[2]?.textContent ?? '').trim(),
+      producto: (tds[3]?.textContent ?? '').trim(),
+      cod_prod: (tds[4]?.textContent ?? '').trim(),
+      categoria: (tds[5]?.textContent ?? '').trim(),
 
-    const json = await res.json();
-    if (!json.ok) { alert('Respuesta inválida del servidor para export_json.'); return; }
+      clm_alm_mov_cantidad: (tds[6]?.textContent ?? '').trim(),
 
-    rows = json.rows || [];
-  } else {
-    document.querySelectorAll('table tbody tr').forEach(tr => {
-      const tds = tr.querySelectorAll('td');
-      if (tds.length < 16) return; // tu tabla tiene 17 (incluye Acciones)
+      placa_label: (tds[7]?.textContent ?? '').trim(),
+      nota_label: (tds[8]?.textContent ?? '').trim(),
+      estadoetiq_label: (tds[9]?.textContent ?? '').trim(),
 
-      rows.push({
-        clm_alm_mov_id: (tds[0]?.textContent ?? '').trim(),
-        clm_alm_mov_fecha_registro: (tds[1]?.textContent ?? '').trim(),
-        clm_alm_mov_TIPO: (tds[2]?.textContent ?? '').trim(),
-        producto: (tds[3]?.textContent ?? '').trim(),
-        cod_prod: (tds[4]?.textContent ?? '').trim(),
-        categoria: (tds[5]?.textContent ?? '').trim(),
-        codigo_categoria: (tds[6]?.textContent ?? '').trim(),
-        clm_alm_mov_cantidad: (tds[7]?.textContent ?? '').trim(),
-        clm_alm_mov_documento: (tds[8]?.textContent ?? '').trim(),
-        clm_mov_factura: (tds[9]?.textContent ?? '').trim(),
-        clm_mov_ruc: (tds[10]?.textContent ?? '').trim(),
-        clm_alm_mov_placa: (tds[11]?.textContent ?? '').trim(),
-        clm_alm_mov_idNOTA: (tds[12]?.textContent ?? '').trim(),
-        clm_alm_movimientos_estadoetiq: (tds[13]?.textContent ?? '').trim(),
-        clm_alm_mov_OBSERVACION: (tds[15]?.textContent ?? '').trim(),
-      });
+      usuario_label: (tds[10]?.textContent ?? '').trim(),
+      clm_alm_mov_OBSERVACION: (tds[11]?.textContent ?? '').trim(),
     });
-  }
+  });
+
 
   if (!rows.length) { alert('No hay data para exportar a PDF.'); return; }
 
@@ -2155,7 +2375,7 @@ async function exportarPDFMovimientos(modo = 'pagina') {
     });
   }
   let logoData = null;
-  try { logoData = await loadImgAsDataURL('../img/norte360.png'); } catch(e) {}
+  try { logoData = await loadImgAsDataURL('../img/eyc.png'); } catch(e) {}
 
   const userName = (document.querySelector('.usuario-barra span')?.textContent ?? '').replace('Hola,', '').trim();
 
@@ -2163,7 +2383,6 @@ async function exportarPDFMovimientos(modo = 'pagina') {
   const TABLE_TOP = 200; // margen superior real de la tabla (evita que pise filtros/KPIs)
 
   const drawHeader = () => {
-    // reset font siempre
     doc.setFont('helvetica', 'normal');
     if (doc.setCharSpace) doc.setCharSpace(0);
 
@@ -2203,11 +2422,12 @@ async function exportarPDFMovimientos(modo = 'pagina') {
     const vBus   = filtros.buscar || '—';
     const vPlaca = filtros.placa || '—';
     const vEst   = filtros.estadoetiq || '—';
-    const vModo  = (modo === 'completo') ? 'Todo filtrado' : 'Página actual';
+    const vModo  = 'Tabla actual';
 
     doc.setTextColor(...C_TEXT);
     doc.setFontSize(9);
 
+    // ✅ DECLARAR ANTES DE USAR
     const writePair = (x, y, label, value, maxChars) => {
       doc.setFont('helvetica','bold');  doc.text(label, x, y);
       doc.setFont('helvetica','normal'); doc.text(trunc(value, maxChars), x + doc.getTextWidth(label) + 4, y);
@@ -2296,24 +2516,15 @@ async function exportarPDFMovimientos(modo = 'pagina') {
   // ========= Tabla (PLACA y NOTA separadas) =========
   const head = [[
     'ID','Fecha','Tipo','Producto','Categoría','Cant.','Placa','Nota','Estado','Obs.'
+
   ]];
 
   const body = rows.map(r => {
-    const d  = (r.clm_alm_mov_documento ?? '').toString().trim();
-    const f  = (r.clm_mov_factura ?? '').toString().trim();
-    const ru = (r.clm_mov_ruc ?? '').toString().trim();
-
-    const docCell = [
-      d ? `DOC: ${trunc(d, 22)}` : null,
-      f ? `FAC: ${trunc(f, 22)}` : null,
-      ru ? `RUC: ${trunc(ru, 22)}` : null,
-    ].filter(Boolean).join('\n') || '—';
-
-    const placa = (r.clm_alm_mov_placa ?? '').toString().trim() || '—';
-    const nota  = (r.clm_alm_mov_idNOTA ?? '').toString().trim() || '—';
-
+    const placa = (r.placa_label ?? '').toString().trim() || '—';
+    const nota  = (r.nota_label ?? '').toString().trim() || '—';
     const prod = `${trunc(r.cod_prod ?? '', 14)}\n${trunc(r.producto ?? '', 34)}`;
-    const cat  = `${trunc(r.categoria ?? '', 14)}\n(${trunc(r.codigo_categoria ?? '', 8)})`;
+    const cat  = trunc(r.categoria ?? '', 55);
+    const estado = (r.estadoetiq_label ?? '').toString().trim() || '—';
 
     return [
       r.clm_alm_mov_id ?? '',
@@ -2322,9 +2533,9 @@ async function exportarPDFMovimientos(modo = 'pagina') {
       prod,
       cat,
       (r.clm_alm_mov_cantidad ?? '').toString(),
-      trunc(placa, 10),
+      trunc(placa, 24),
       trunc(nota, 10),
-      (r.clm_alm_movimientos_estadoetiq ?? '').toString().trim() || '—',
+      estado,
       trunc(r.clm_alm_mov_OBSERVACION ?? '', 140)
     ];
   });
@@ -2359,16 +2570,16 @@ async function exportarPDFMovimientos(modo = 'pagina') {
 
     // ANCHOS CUADRADOS (suman el ancho útil, no se deforma)
     columnStyles: {
-      0:  { cellWidth: 32 },  // ID
-      1:  { cellWidth: 60 },  // Fecha
-      2:  { cellWidth: 36, halign:'center' }, // Tipo
-      3:  { cellWidth: 130 }, // Producto
-      4:  { cellWidth: 78 },  // Categoría
-      5:  { cellWidth: 48, halign:'right' },  // Cant.
-      6:  { cellWidth: 46 },  // Placa
-      7:  { cellWidth: 46 },  // Nota
-      8:  { cellWidth: 58 },  // Estado
-      9: { cellWidth: 146 }  // Obs.
+      0: { cellWidth: 32 },                 // ID
+      1: { cellWidth: 60 },                 // Fecha
+      2: { cellWidth: 36, halign:'center' },// Tipo
+      3: { cellWidth: 150 },                // Producto
+      4: { cellWidth: 115 },                // Categoría
+      5: { cellWidth: 48, halign:'right' }, // Cant.
+      6: { cellWidth: 70 },                 // Placa
+      7: { cellWidth: 46 },                 // Nota
+      8: { cellWidth: 58 },                 // Estado
+      9: { cellWidth: 155 }                 // Obs.
     },
 
     // Header/KPIs ANTES de la tabla (no se pisan)
@@ -2409,12 +2620,13 @@ async function exportarPDFMovimientos(modo = 'pagina') {
 
   if (doc.putTotalPages) doc.putTotalPages(totalPagesExp);
 
-  const fname = `Movimientos_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${modo}.pdf`;
+  const fname = `Movimientos_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}.pdf`;
   doc.save(fname);
 }
 
 
 </script>
+<?php endif; ?>
 
 
 </html>
