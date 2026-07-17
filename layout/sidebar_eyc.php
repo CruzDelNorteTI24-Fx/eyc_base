@@ -511,8 +511,18 @@ function eyc_menu_config(): array {
 require_once __DIR__ . '/quick_scan_eyc.php';
 require_once __DIR__ . '/bus_lookup_eyc.php';
 
+function eyc_sidebar_visible_modules(): array {
+    return [
+        'panel' => true,
+        'admin' => true,
+        'inventario' => true,
+        'combustible' => true,
+    ];
+}
+
 function eyc_render_sidebar(): void {
     $menu = eyc_menu_config();
+    $visibleModules = eyc_sidebar_visible_modules();
     $currentUri = str_replace('\\', '/', $_SERVER['REQUEST_URI'] ?? '');
 
     echo '<button class="sidebar-mobile-btn" type="button" onclick="eycToggleSidebarMobile()" data-sidebar-mobile-toggle aria-controls="sidebareyc" aria-expanded="false" aria-label="Abrir menu"><i class="bi bi-list"></i></button>';
@@ -550,6 +560,11 @@ function eyc_render_sidebar(): void {
     ';
 
     foreach ($menu as $modulo) {
+        $rawModuloId = (string)($modulo['id'] ?? '');
+        if (!isset($visibleModules[$rawModuloId])) {
+            continue;
+        }
+
         if (!eyc_puede_modulo((int)$modulo['modulo'])) {
             continue;
         }

@@ -509,8 +509,8 @@ require_once __DIR__ . '/../layout/content_eyc.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Combustible | Historial eyc</title>
-    <link rel="icon" href="<?= eyc_asset('img/eyc.png') ?>" type="image/png">
+    <title>Combustible | Historial Norte360</title>
+    <link rel="icon" href="<?= eyc_asset('img/norte360.png') ?>" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= eyc_asset('assets/css/header_eyc.css') ?>">
@@ -718,7 +718,21 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                                     <td><span class="stock-code"><?= comb_h($row['id_mov'] ?? '-') ?></span></td>
                                     <td><?= comb_h(comb_fecha_display($row['fecha'] ?? '')) ?></td>
                                     <td><span class="comb-type comb-type--<?= comb_h(comb_tipo_class($tipoRow)) ?>"><?= comb_h(comb_tipo_label($tipoRow)) ?></span></td>
-                                    <td><span class="stock-code"><?= comb_h(comb_text($row['nota'] ?? '')) ?></span></td>
+                                    <td data-comb-export-text="<?= comb_h(comb_text($row['nota'] ?? '')) ?>">
+                                        <div class="comb-note-cell">
+                                            <span class="stock-code"><?= comb_h(comb_text($row['nota'] ?? '')) ?></span>
+                                            <?php if (comb_text($row['nota'] ?? '') !== '-'): ?>
+                                                <button type="button"
+                                                        class="comb-note-pdf-btn"
+                                                        data-eyc-note-download
+                                                        data-movement-id="<?= (int)($row['id_mov'] ?? 0) ?>"
+                                                        title="Descargar nota PDF"
+                                                        aria-label="Descargar PDF de nota <?= comb_h(comb_text($row['nota'] ?? '')) ?>">
+                                                    <i class="bi bi-file-earmark-pdf"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
                                     <td><?= comb_h(comb_text($row['grifo'] ?? '')) ?></td>
                                     <td><div class="comb-product"><strong><?= comb_h(comb_text($row['producto'] ?? '')) ?></strong></div></td>
                                     <td><?= comb_h(comb_text($row['unidad'] ?? '')) ?></td>
@@ -967,9 +981,22 @@ window.eyc_COMBUSTIBLE_REPORT = {
     dni: <?= json_encode((string)$dniUsuario, JSON_UNESCAPED_UNICODE) ?>,
     fileBase: <?= json_encode('Movimientos_Combustible_' . date('Ymd_His'), JSON_UNESCAPED_UNICODE) ?>,
     logoLeft: <?= json_encode(eyc_asset('img/icon.png'), JSON_UNESCAPED_SLASHES) ?>,
-    logoRight: <?= json_encode(eyc_asset('img/eyc_black.png'), JSON_UNESCAPED_SLASHES) ?>
+    logoRight: <?= json_encode(eyc_asset('img/norte360_black.png'), JSON_UNESCAPED_SLASHES) ?>
+};
+window.eyc_NOTA_PDF_CONFIG = {
+    endpoint: <?= json_encode(eyc_base_url('php/nota_pdf_data.php'), JSON_UNESCAPED_SLASHES) ?>,
+    userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
+    dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
+    logoTicket: <?= json_encode(eyc_base_url('img/completo.png'), JSON_UNESCAPED_SLASHES) ?>,
+    footerLabel: 'NORTE 360'
 };
 </script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/combustible_historial_eyc.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/header_eyc.js') ?>"></script>

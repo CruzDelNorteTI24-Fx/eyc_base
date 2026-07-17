@@ -1,7 +1,7 @@
 :root {
-    --eyc-separator-blue: #3498db;
-    --eyc-separator-yellow: #f5d547;
-    --eyc-separator-soft: rgba(52, 152, 219, 0.16);
+    --eyc-separator-blue: #0f8f7b;
+    --eyc-separator-yellow: #d6a647;
+    --eyc-separator-soft: rgba(15, 143, 123, 0.16);
 }
 html,
 body {

@@ -1,15 +1,15 @@
 :root {
-    --eyc-header-bg: #162433;
-    --eyc-header-bg-soft: #203448;
+    --eyc-header-bg: #0f2f2f;
+    --eyc-header-bg-soft: #164443;
     --eyc-header-bg-hover: rgba(255, 255, 255, 0.10);
     --eyc-header-line: rgba(255, 255, 255, 0.14);
     --eyc-header-text: #f8fbff;
     --eyc-header-muted: rgba(232, 240, 248, 0.72);
-    --eyc-header-blue: #25a6df;
-    --eyc-header-yellow: #f5c542;
+    --eyc-header-blue: #0f8f7b;
+    --eyc-header-yellow: #d6a647;
     --eyc-header-card: #ffffff;
-    --eyc-header-ink: #172b3f;
-    --eyc-header-soft: #f5f8fb;
+    --eyc-header-ink: #132b2a;
+    --eyc-header-soft: #f3f8f6;
     --eyc-header-shadow: 0 18px 42px rgba(8, 19, 31, 0.28);
 }
 
@@ -24,8 +24,8 @@
     z-index: 850;
     color: var(--eyc-header-text);
     background:
-        radial-gradient(circle at 18% -60%, rgba(37, 166, 223, 0.22), transparent 35%),
-        linear-gradient(90deg, #142232 0%, #1c3043 54%, #22394e 100%);
+        radial-gradient(circle at 18% -60%, rgba(15, 143, 123, 0.22), transparent 35%),
+        linear-gradient(90deg, #102828 0%, #143c3a 54%, #1b4f49 100%);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 10px 26px rgba(7, 18, 29, 0.18);
 }
@@ -179,7 +179,7 @@
     border-radius: 50%;
     background:
         linear-gradient(#fff, #fff) padding-box,
-        linear-gradient(135deg, rgba(37, 166, 223, 0.96), rgba(245, 197, 66, 0.96)) border-box;
+        linear-gradient(135deg, rgba(15, 143, 123, 0.96), rgba(214, 166, 71, 0.96)) border-box;
     border: 2px solid transparent;
     color: var(--eyc-header-ink);
     display: inline-grid;
@@ -292,8 +292,8 @@
     padding: 13px;
     border-radius: 14px;
     background:
-        linear-gradient(135deg, rgba(37, 166, 223, 0.18), transparent 46%),
-        linear-gradient(135deg, #17283a, #28445b);
+        linear-gradient(135deg, rgba(15, 143, 123, 0.18), transparent 46%),
+        linear-gradient(135deg, #143332, #1f5049);
     color: #fff;
 }
 

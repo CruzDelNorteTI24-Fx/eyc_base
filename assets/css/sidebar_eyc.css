@@ -8,12 +8,12 @@
 :root {
     --eyc-font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
     --eyc-sidebar-w: 270px;
-    --eyc-dark: #24384c;
-    --eyc-blue: #1683d8;
-    --eyc-bg: #f5f8fc;
-    --eyc-border: #dce6f1;
-    --eyc-text: #243447;
-    --eyc-muted: #7b8a9b;
+    --eyc-dark: #20343a;
+    --eyc-blue: #0f8f7b;
+    --eyc-bg: #f4f8f6;
+    --eyc-border: #d8e7e3;
+    --eyc-text: #21343a;
+    --eyc-muted: #70878a;
 }
 
 .sidebar-eyc,
@@ -28,7 +28,7 @@
     width: var(--eyc-sidebar-w);
     height: 100vh;
     height: 100dvh;
-    background: linear-gradient(180deg, #ffffff 0%, #f5f8fc 100%);
+    background: linear-gradient(180deg, #ffffff 0%, #f4f8f6 100%);
     border-right: 1px solid var(--eyc-border);
     box-shadow: 8px 0 24px rgba(31, 52, 74, 0.08);
     z-index: 900;
@@ -75,7 +75,7 @@
     margin: -5px 5px 14px;
     overflow: hidden;
     border-radius: 999px;
-    background: linear-gradient(90deg, rgba(22, 131, 216, 0.06), rgba(247, 199, 25, 0.08), rgba(22, 131, 216, 0.05));
+    background: linear-gradient(90deg, rgba(15, 143, 123, 0.06), rgba(247, 199, 25, 0.08), rgba(15, 143, 123, 0.05));
 }
 
 .sidebar-road-line {
@@ -95,8 +95,8 @@
     width: 34px;
     height: 13px;
     border-radius: 5px 7px 4px 4px;
-    background: linear-gradient(180deg, #f7cf21 0%, #f5b91f 52%, #1683d8 53%, #1683d8 100%);
-    box-shadow: 0 5px 12px rgba(22, 131, 216, 0.16);
+    background: linear-gradient(180deg, #d6a647 0%, #c58a2a 52%, #0f8f7b 53%, #0f8f7b 100%);
+    box-shadow: 0 5px 12px rgba(15, 143, 123, 0.16);
     animation: eyc-sidebar-bus-drive 7.5s cubic-bezier(.4, 0, .2, 1) infinite;
 }
 
@@ -108,7 +108,7 @@
     top: -4px;
     height: 6px;
     border-radius: 6px 8px 1px 1px;
-    background: #1683d8;
+    background: #0f8f7b;
 }
 
 .sidebar-bus-window {
@@ -144,7 +144,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #24384c;
+    background: #20343a;
     border: 2px solid #f8fafc;
 }
 
@@ -193,7 +193,7 @@
 
 .sidebar-search input:focus {
     border-color: var(--eyc-blue);
-    box-shadow: 0 0 0 3px rgba(22, 131, 216, 0.12);
+    box-shadow: 0 0 0 3px rgba(15, 143, 123, 0.12);
 }
 
 .sidebar-module {
@@ -216,7 +216,7 @@
 }
 
 .sidebar-module-btn:hover {
-    background: #eaf3fb;
+    background: #e7f5f1;
 }
 
 .sidebar-module-link {
@@ -224,9 +224,9 @@
 }
 
 .sidebar-module-link.active {
-    background: linear-gradient(90deg, #1683d8, #2f9ceb);
+    background: linear-gradient(90deg, #0f8f7b, #19b394);
     color: #fff;
-    box-shadow: 0 6px 14px rgba(22, 131, 216, 0.25);
+    box-shadow: 0 6px 14px rgba(15, 143, 123, 0.25);
 }
 
 .sidebar-module-link.active .module-icon {
@@ -249,7 +249,7 @@
     border-radius: 9px;
     display: grid;
     place-items: center;
-    background: #eaf3fb;
+    background: #e7f5f1;
 }
 
 .module-title {
@@ -280,7 +280,7 @@
     display: none;
     padding: 5px 0 4px 8px;
     margin-left: 12px;
-    border-left: 2px solid #d9e8f6;
+    border-left: 2px solid #d6e9e4;
 }
 
 .sidebar-module.open .sidebar-module-content {
@@ -314,15 +314,15 @@
 }
 
 .sidebar-link:hover {
-    background: #edf6ff;
+    background: #ecf8f4;
     color: var(--eyc-blue);
     transform: translateX(3px);
 }
 
 .sidebar-link.active {
-    background: linear-gradient(90deg, #1683d8, #2f9ceb);
+    background: linear-gradient(90deg, #0f8f7b, #19b394);
     color: white;
-    box-shadow: 0 6px 14px rgba(22, 131, 216, 0.25);
+    box-shadow: 0 6px 14px rgba(15, 143, 123, 0.25);
 }
 
 .sidebar-collapse-btn,
@@ -374,8 +374,8 @@
 
 .sidebar-collapse-btn:hover,
 .sidebar-show-btn:hover {
-    background: #dbe7f6;
-    color: #22384e;
+    background: #d6e9e4;
+    color: #20343a;
 }
 
 body {
@@ -469,7 +469,7 @@ body.sidebar-mobile-open {
         width: 44px;
         height: 44px;
         border-radius: 12px;
-        background: #1683d8;
+        background: #0f8f7b;
         color: white;
         z-index: 1202;
         font-size: 0;
@@ -479,7 +479,7 @@ body.sidebar-mobile-open {
     }
 
     .sidebar-mobile-btn.is-active {
-        background: #24384c;
+        background: #20343a;
     }
 
     .sidebar-brand {
@@ -528,7 +528,7 @@ body.sidebar-mobile-open {
 
 .module-icon i {
     font-size: 15px;
-    color: #1683d8;
+    color: #0f8f7b;
 }
 
 .sidebar-link i {
@@ -540,7 +540,7 @@ body.sidebar-mobile-open {
 }
 
 .sidebar-link:hover i {
-    color: #1683d8;
+    color: #0f8f7b;
 }
 
 .sidebar-link.active i {
