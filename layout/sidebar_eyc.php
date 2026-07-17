@@ -536,9 +536,9 @@ function eyc_render_sidebar(): void {
         </button>
 
         <div class="sidebar-brand">
-            <img src="'.htmlspecialchars(eyc_base_url('img/eyc_black.png')).'" alt="Norte 360">
+            <img src="'.htmlspecialchars(eyc_base_url('img/eyc_black.png')).'" alt="Eyc">
             <div>
-                <strong>Norte 360°</strong>
+                <strong>Eyc°</strong>
                 <span>Panel operativo</span>
             </div>
         </div>

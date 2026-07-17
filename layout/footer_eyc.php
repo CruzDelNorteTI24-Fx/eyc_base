@@ -50,7 +50,7 @@ function eyc_render_footer(array $options = []): void {
         <div class="eyc-footer__inner">
             <div class="eyc-footer__brand">
                 <a href="<?= eyc_footer_h($homeUrl) ?>" class="eyc-footer__logo-link" aria-label="Ir al panel principal">
-                    <img src="<?= eyc_footer_h($logoUrl) ?>" alt="Norte 360" class="eyc-footer__logo">
+                    <img src="<?= eyc_footer_h($logoUrl) ?>" alt="Eyc" class="eyc-footer__logo">
                 </a>
                 <div>
                     <strong>eyc Web</strong>
@@ -78,7 +78,7 @@ function eyc_render_footer(array $options = []): void {
                     <i class="bi bi-tag-fill" aria-hidden="true"></i>
                     Version <?= eyc_footer_h($version) ?>
                 </span>
-                <span>&copy; <?= eyc_footer_h($year) ?> Norte 360. Todos los derechos reservados.</span>
+                <span>&copy; <?= eyc_footer_h($year) ?> Eyc. Todos los derechos reservados.</span>
             </div>
         </div>
 

@@ -334,7 +334,7 @@ try {
         'dni' => $dni,
         'products' => $products,
         'total' => 'S/. ' . number_format($total, 4, '.', ''),
-        'footerLabel' => 'NORTE 360',
+        'footerLabel' => 'Eyc',
         'fileName' => $fileName,
     ];
 

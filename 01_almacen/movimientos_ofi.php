@@ -274,7 +274,7 @@ $cat_rs = $conn->query("SELECT clm_alm_categoria_id AS id, clm_alm_categoria_NOM
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualización de Movimientos | Norte 360°</title>
+    <title>Visualización de Movimientos | Eyc°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../img/eyc.png">    
     <!-- Bootstrap 5 CDN -->
@@ -2090,7 +2090,7 @@ window.eyc_NOTA_PDF_CONFIG = {
   userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
   dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
   logoTicket: '<?= h(eyc_base_url('img/completo.png')) ?>',
-  footerLabel: 'NORTE 360'
+  footerLabel: 'Eyc'
 };
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -2397,7 +2397,7 @@ async function exportarPDFMovimientos() {
     doc.setTextColor(255,255,255);
     doc.setFont('helvetica','bold');
     doc.setFontSize(14);
-    doc.text('Norte 360° — Reporte de Movimientos', marginX + 42, 32);
+    doc.text('Eyc° — Reporte de Movimientos', marginX + 42, 32);
 
     doc.setFont('helvetica','normal');
     doc.setFontSize(9);
@@ -2509,7 +2509,7 @@ async function exportarPDFMovimientos() {
     doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
 
-    doc.text('Norte 360° · Inventario · Movimientos', marginX, pageH - 14);
+    doc.text('Eyc° · Inventario · Movimientos', marginX, pageH - 14);
     doc.text(`Página ${pageNumber} de ${totalPagesExp}`, pageW - marginX, pageH - 14, { align: 'right' });
   };
 

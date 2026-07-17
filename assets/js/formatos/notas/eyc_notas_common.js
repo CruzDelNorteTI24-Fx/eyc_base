@@ -183,7 +183,7 @@
             {align: 'center'}
         );
 
-        const label = note.footerLabel || 'NORTE 360';
+        const label = note.footerLabel || 'Eyc';
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(5);
         const chipWidth = doc.getTextWidth(label) + 6;
@@ -215,7 +215,7 @@
             impreso: now.impreso,
             responsible: cfg.userName || 'Usuario',
             dni: cfg.dni || 'No registrado',
-            footerLabel: 'NORTE 360',
+            footerLabel: 'Eyc',
             products: []
         }, defaults || {}, data || {});
     }

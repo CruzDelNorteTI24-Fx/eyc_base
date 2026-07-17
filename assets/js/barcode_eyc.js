@@ -230,7 +230,7 @@
             ctx.font = '900 13px eycConsola, Consolas, Courier New, monospace';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('NORTE 360', canvas.width / 2, y + 25);
+            ctx.fillText('Eyc', canvas.width / 2, y + 25);
         }
 
         const link = document.createElement('a');
@@ -255,7 +255,7 @@
                         <span title="${esc(data.category)}">${esc(data.category)}</span>
                         <span title="${esc(data.name)}">${esc(data.name)}</span>
                     </div>
-                    ${data.logo && data.logo !== '-' ? `<img class="eyc-barcode-logo" src="${esc(data.logo)}" alt="Norte 360">` : '<div class="eyc-barcode-logo" aria-hidden="true"></div>'}
+                    ${data.logo && data.logo !== '-' ? `<img class="eyc-barcode-logo" src="${esc(data.logo)}" alt="Eyc">` : '<div class="eyc-barcode-logo" aria-hidden="true"></div>'}
                 </div>
             `;
             el.dataset.barcodeRendered = '1';

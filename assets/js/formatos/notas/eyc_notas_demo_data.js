@@ -25,7 +25,7 @@
             impreso: now.impreso,
             responsible: cfg.userName || 'admin',
             dni: cfg.dni || '72953637',
-            footerLabel: 'NORTE 360'
+            footerLabel: 'Eyc'
         };
     }
 
@@ -77,7 +77,7 @@
         return Object.assign(base(cfg, 'AB'), {
             correlativo: 11,
             module: 'Combustible',
-            space: 'GRIFO NORTE 360',
+            space: 'GRIFO Eyc',
             provider: 'E & C AUTOSERVICIOS S.A.C.',
             reason: 'Abastecimiento de combustible a tanque principal.',
             products: [

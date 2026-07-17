@@ -453,7 +453,7 @@ $conn->close();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Validación de Código | Norte 360°</title>
+    <title>Validación de Código | Eyc°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../img/eyc.png">  
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -1429,7 +1429,7 @@ $conn->close();
 
 
 /* =========================================================
-   REDISEÑO PRO - SCANNER / VALIDACIÓN NORTE 360
+   REDISEÑO PRO - SCANNER / VALIDACIÓN Eyc
    Mantiene la lógica: DE0215 = producto, DE0215-1 = trazabilidad
    ========================================================= */
 :root{
@@ -1947,7 +1947,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
       <div class="scanner-eyebrow"><i class="bi bi-upc-scan"></i> Inventario · Scaner</div>
       <h1>Scanner de Productos y Trazabilidad</h1>
     </div>
-    <img src="../img/cdn_etiquetas_lg.png" alt="Scanner Norte 360" class="scanner-hero-logo">
+    <img src="../img/cdn_etiquetas_lg.png" alt="Scanner Eyc" class="scanner-hero-logo">
   </section>
 
   <div class="scanner-grid">

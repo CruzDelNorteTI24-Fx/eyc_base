@@ -20,7 +20,7 @@ $errorMessage = $errorMessages[$errorCode] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#101820">
-    <title>Acceso | Norte 360</title>
+    <title>Acceso | Eyc</title>
     <link rel="icon" href="../img/eyc.png">
 
     <style>
@@ -583,13 +583,13 @@ $errorMessage = $errorMessages[$errorCode] ?? '';
 <body>
 
 <main class="login-shell">
-    <section class="brand-panel" aria-label="Presentación de Norte 360">
+    <section class="brand-panel" aria-label="Presentación de Eyc">
         <div class="brand-top">
             <div class="brand-mark" aria-hidden="true">
                 <img src="../img/eyc_black.png" alt="">
             </div>
             <div class="brand-name">
-                <strong>Norte 360</strong>
+                <strong>Eyc</strong>
                 <span>ERP Operativo de Transporte</span>
             </div>
         </div>

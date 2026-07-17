@@ -41,7 +41,7 @@
         <div class="eyc-dialog__top">
           <div class="eyc-dialog__icon"><i></i></div>
           <div>
-            <p class="eyc-dialog__eyebrow">Norte 360</p>
+            <p class="eyc-dialog__eyebrow">Eyc</p>
             <h2 class="eyc-dialog__title" id="eycDialogTitle"></h2>
           </div>
         </div>

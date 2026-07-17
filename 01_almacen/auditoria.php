@@ -286,7 +286,7 @@ function aud_print_layout_start(string $title): void {
 
 function aud_print_header(string $title, array $audit): void {
     echo "<header class='print-header'><div class='print-brand'>";
-    echo "<img class='print-logo' src='../img/eyc.png' alt='Norte 360'>";
+    echo "<img class='print-logo' src='../img/eyc.png' alt='Eyc'>";
     echo "<div><h1>" . aud_h($title) . "</h1><div class='muted'>Cruz del Norte - ERP Operativo de Transporte</div></div>";
     echo "</div><div><span class='pill'>" . aud_h($audit['clm_aud_alm_codigo'] ?? 'Auditoria') . "</span></div></header>";
 }
@@ -625,7 +625,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditorias de almacen | Norte 360</title>
+    <title>Auditorias de almacen | Eyc</title>
     <link rel="icon" href="<?= eyc_asset('img/eyc.png') ?>" type="image/png">
     <link rel="shortcut icon" href="<?= eyc_asset('img/eyc.png') ?>" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

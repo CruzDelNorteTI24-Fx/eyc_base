@@ -411,7 +411,7 @@ window.eyc_NOTA_PDF_CONFIG = {
     userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
     dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
     logoTicket: '<?= inv_h(eyc_base_url('img/completo.png')) ?>',
-    footerLabel: 'NORTE 360'
+    footerLabel: 'Eyc'
 };
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

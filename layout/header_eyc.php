@@ -334,10 +334,10 @@ function eyc_render_header(array $options = []): void {
         <div class="eyc-header__inner">
             <a class="eyc-header__brand" href="<?= eyc_header_h($homeUrl) ?>" aria-label="Ir al panel principal">
                 <span class="eyc-header__logo-wrap">
-                    <img src="<?= eyc_header_h($logoEmpresa) ?>" alt="Norte 360" class="eyc-header__logo-main">
+                    <img src="<?= eyc_header_h($logoEmpresa) ?>" alt="Eyc" class="eyc-header__logo-main">
                 </span>
                 <span class="eyc-header__brand-copy">
-                    <img src="<?= eyc_header_h($logoSistema) ?>" alt="Norte 360" class="eyc-header__logo-system">
+                    <img src="<?= eyc_header_h($logoSistema) ?>" alt="Eyc" class="eyc-header__logo-system">
                     <span class="eyc-header__brand-sub">ERP Operativo de Transporte</span>
                 </span>
             </a>

@@ -4,7 +4,7 @@
     const DEFAULTS = {
         companyName: 'EMPRESA DE TRANSPORTES CRUZ DEL NORTE S.A.C.',
         ruc: '20403002101',
-        systemName: 'Norte 360° - ERP Operativo de Transporte',
+        systemName: 'Eyc° - ERP Operativo de Transporte',
         docCode: 'eyc-DOC-DEMO',
         title: 'FORMATO DOCUMENTARIO',
         secondTitle: 'Plantilla estandar A4',
@@ -353,7 +353,7 @@
             secondTitle: 'Prueba de estandar documental',
             docCode: cfg.orientation === 'landscape' ? 'eyc-DOC-A4-H' : 'eyc-DOC-A4-V',
             coverTitle: cfg.orientation === 'landscape' ? 'FORMATO HORIZONTAL' : 'FORMATO VERTICAL',
-            coverMain: 'Plantilla Norte 360',
+            coverMain: 'Plantilla Eyc',
             coverSecond: 'A4 - ' + orientationLabel.toUpperCase(),
             description: 'Documento de prueba sin consultas a base de datos. Sirve para validar estetica, margenes, caratula, encabezado y pie de pagina.'
         }, cfg));

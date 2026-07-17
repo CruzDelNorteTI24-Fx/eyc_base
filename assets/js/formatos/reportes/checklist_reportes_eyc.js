@@ -250,7 +250,7 @@
       coverTitle: 'REPORTE DE CHECKLIST',
       coverMain: `${text(chk.bus, 'Unidad')} (${text(chk.placa, 'Sin placa')})`,
       coverSecond: `${text(chk.tipo, 'Checklist')} | ${text(chk.corr, 'Sin correlativo')}`,
-      description: 'Reporte unitario generado desde Norte 360 con el formato estandar A4.',
+      description: 'Reporte unitario generado desde Eyc con el formato estandar A4.',
       content(doc, cfg) {
         let y = 36;
         y = drawInfoGrid(doc, [

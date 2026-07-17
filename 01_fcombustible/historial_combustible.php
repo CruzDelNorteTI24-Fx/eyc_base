@@ -988,7 +988,7 @@ window.eyc_NOTA_PDF_CONFIG = {
     userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
     dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
     logoTicket: <?= json_encode(eyc_base_url('img/completo.png'), JSON_UNESCAPED_SLASHES) ?>,
-    footerLabel: 'NORTE 360'
+    footerLabel: 'Eyc'
 };
 </script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>

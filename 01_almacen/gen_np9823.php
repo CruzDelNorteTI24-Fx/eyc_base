@@ -257,7 +257,7 @@ if (count($rows) > 0) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualización de Productos | Norte 360°</title>
+    <title>Visualización de Productos | Eyc°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../img/eyc.png">    
     <!-- Bootstrap 5 CDN -->
@@ -1280,7 +1280,7 @@ margin: 20px
     
 
 /* =========================================================
-   REDISEÑO GERENCIAL - CATÁLOGO DE PRODUCTOS NORTE 360
+   REDISEÑO GERENCIAL - CATÁLOGO DE PRODUCTOS Eyc
    ========================================================= */
 :root{
   --cat-bg:#eef3f8;
@@ -1812,7 +1812,7 @@ window.eyc_NOTA_PDF_CONFIG = {
   userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
   dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
   logoTicket: '<?= h(eyc_base_url('img/completo.png')) ?>',
-  footerLabel: 'NORTE 360'
+  footerLabel: 'Eyc'
 };
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
