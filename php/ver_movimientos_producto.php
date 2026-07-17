@@ -109,7 +109,7 @@ if ($barcode_codigo === '') {
 }
 $barcode_nombre = trim((string)($info['producto'] ?? 'Producto sin nombre'));
 $barcode_categoria = trim((string)((($info['codigo'] ?? '') !== '' ? '(' . $info['codigo'] . ') ' : '') . (($info['descategoria'] ?? '') ?: ($info['categoria'] ?? 'Sin categoria'))));
-$barcode_logo = '../img/completo.png';
+$barcode_logo = '../img/completo2.png';
 ?>
 
 <style>

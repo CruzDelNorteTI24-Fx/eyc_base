@@ -36,7 +36,7 @@ if (!function_exists('eyc_render_quick_scan')) {
         $rendered = true;
         $endpoint = htmlspecialchars(eyc_base_url('01_almacen/quick_scan_api.php'), ENT_QUOTES, 'UTF-8');
         $imageEndpoint = htmlspecialchars(eyc_base_url('01_almacen/scanner.php?img_prod='), ENT_QUOTES, 'UTF-8');
-        $barcodeLogo = htmlspecialchars(eyc_base_url('img/completo.png'), ENT_QUOTES, 'UTF-8');
+        $barcodeLogo = htmlspecialchars(eyc_base_url('img/completo2.png'), ENT_QUOTES, 'UTF-8');
 
         echo '
             <link rel="stylesheet" href="' . eyc_asset('assets/css/barcode_eyc.css') . '">

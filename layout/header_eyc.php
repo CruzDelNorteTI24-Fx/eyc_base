@@ -290,7 +290,7 @@ function eyc_render_header(array $options = []): void {
     $homeUrl = $options['home_url'] ?? eyc_base_url('index.php');
     $logoutUrl = $options['logout_url'] ?? eyc_base_url('login/logout.php');
     $logoEmpresa = $options['logo_empresa'] ?? eyc_base_url('img/eyc.png');
-    $logoSistema = $options['logo_sistema'] ?? eyc_base_url('img/completo.png');
+    $logoSistema = $options['logo_sistema'] ?? eyc_base_url('img/nav-log.png');
     ?>
     <?php if (empty($GLOBALS['eyc_header_critical_printed'])): $GLOBALS['eyc_header_critical_printed'] = true; ?>
         <style id="eycHeaderCritical">

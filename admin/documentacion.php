@@ -152,7 +152,7 @@ const pdfConfig = {
     dni: <?= json_encode($dni, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
     logoLeft: <?= json_encode(eyc_base_url('img/icon.png'), JSON_UNESCAPED_SLASHES) ?>,
     logoRight: <?= json_encode(eyc_base_url('img/eyc_black.png'), JSON_UNESCAPED_SLASHES) ?>,
-    logoTicket: <?= json_encode(eyc_base_url('img/completo.png'), JSON_UNESCAPED_SLASHES) ?>,
+    logoTicket: <?= json_encode(eyc_base_url('img/completo2.png'), JSON_UNESCAPED_SLASHES) ?>,
     coverImage: <?= json_encode(eyc_base_url('img/caratula_historial_flota.png'), JSON_UNESCAPED_SLASHES) ?>
 };
 

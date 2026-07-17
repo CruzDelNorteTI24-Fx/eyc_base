@@ -1366,7 +1366,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
     <div class="separador-vertical"></div>
         <a href="javascript:location.reload()">
             <div class="logo-bloque">
-            <img src="../img/completo.png" alt="Logo Sistema" class="logo-header2">
+            <img src="../img/nav-log.png" alt="Logo Sistema" class="logo-header2">
             </div>
         </a>
 

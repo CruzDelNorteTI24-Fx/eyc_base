@@ -987,7 +987,7 @@ window.eyc_NOTA_PDF_CONFIG = {
     endpoint: <?= json_encode(eyc_base_url('php/nota_pdf_data.php'), JSON_UNESCAPED_SLASHES) ?>,
     userName: <?= json_encode((string)($_SESSION['usuario'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
     dni: <?= json_encode((string)($_SESSION['DNI'] ?? ''), JSON_UNESCAPED_UNICODE) ?>,
-    logoTicket: <?= json_encode(eyc_base_url('img/completo.png'), JSON_UNESCAPED_SLASHES) ?>,
+    logoTicket: <?= json_encode(eyc_base_url('img/completo2.png'), JSON_UNESCAPED_SLASHES) ?>,
     footerLabel: 'Eyc'
 };
 </script>
