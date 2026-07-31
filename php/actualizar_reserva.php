@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     define('ACCESS_GRANTED', true);
     require_once("../.c0nn3ct/db_secure.php");
@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $accion = $_POST["accion"] ?? "";
 
     if ($id <= 0) {
-        echo "⚠️ ID no recibido o inválido.";
+        echo "âš ï¸ ID no recibido o invÃ¡lido.";
         exit();
     }
 
@@ -16,7 +16,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif ($accion === "quitar") {
         $sql = "UPDATE entrevistas SET clm_reservas = 0 WHERE id_entrevista = ?";
     } else {
-        echo "❌ Acción no válida.";
+        echo "âŒ AcciÃ³n no vÃ¡lida.";
         exit();
     }
 
@@ -25,15 +25,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($stmt->execute()) {
         if ($stmt->affected_rows > 0) {
-            echo "✅ Reserva actualizada.";
+            echo "âœ… Reserva actualizada.";
         } else {
-            echo "⚠️ No se realizó ningún cambio.";
+            echo "âš ï¸ No se realizÃ³ ningÃºn cambio.";
         }
     } else {
-        echo "❌ Error al actualizar: " . $conn->error;
+        echo "âŒ Error al actualizar: " . $conn->error;
     }
 
     $stmt->close();
     $conn->close();
 }
 ?>
+

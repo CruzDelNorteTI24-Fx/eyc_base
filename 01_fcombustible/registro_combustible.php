@@ -592,6 +592,7 @@ window.eyc_NOTA_PDF_CONFIG = {
 };
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
@@ -604,3 +605,5 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
 </body>
 </html>
+
+

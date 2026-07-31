@@ -323,7 +323,7 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                     <h2>Movimientos del periodo</h2>
                     <p>Doble click sobre un producto para abrir su historial completo.</p>
                 </div>
-                <span><?= hist_h($desde) ?> a <?= hist_h($hasta) ?> · <?= hist_h($categoriaLabel) ?></span>
+                <span><?= hist_h($desde) ?> a <?= hist_h($hasta) ?> Â· <?= hist_h($categoriaLabel) ?></span>
             </div>
             <div class="stock-table-wrap">
                 <table class="stock-table" id="historialStockTable" data-report-title="Historial de stocks" data-report-subtitle="Rango: <?= hist_h($desde) ?> a <?= hist_h($hasta) ?> | Categoria: <?= hist_h($categoriaLabel) ?>">
@@ -391,14 +391,14 @@ require_once __DIR__ . '/../layout/content_eyc.php';
 
 <div id="modal-movimientos" class="stock-drawer">
     <div class="stock-drawer-panel">
-        <button type="button" class="stock-drawer-close" onclick="cerrarModal()" aria-label="Cerrar">×</button>
+        <button type="button" class="stock-drawer-close" onclick="cerrarModal()" aria-label="Cerrar">Ã—</button>
         <div id="contenido-movimientos">Cargando movimientos...</div>
     </div>
 </div>
 
 <div id="modal-nota" class="stock-note-modal">
     <div class="stock-note-content">
-        <button type="button" class="stock-drawer-close" onclick="cerrarNotaModal()" aria-label="Cerrar">×</button>
+        <button type="button" class="stock-drawer-close" onclick="cerrarNotaModal()" aria-label="Cerrar">Ã—</button>
         <div id="contenido-nota">Cargando nota...</div>
     </div>
 </div>
@@ -434,7 +434,9 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
@@ -449,3 +451,4 @@ if (isset($conn) && $conn instanceof mysqli) {
     $conn->close();
 }
 ?>
+

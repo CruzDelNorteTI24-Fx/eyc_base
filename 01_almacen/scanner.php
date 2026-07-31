@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
@@ -29,7 +29,7 @@ if ($_SESSION['web_rol'] !== 'Admin') {
 if (isset($_GET['img_prod'])) {
     $idp = (int)$_GET['img_prod'];
 
-    // Seguridad básica
+    // Seguridad bÃ¡sica
     if ($idp <= 0) {
         http_response_code(400);
         exit;
@@ -132,13 +132,13 @@ if ($codigo) {
     $codigo_html = htmlspecialchars($codigo_busqueda, ENT_QUOTES, 'UTF-8');
 
     // Regla:
-    // DE0215-1  => etiqueta/item específico con trazabilidad
+    // DE0215-1  => etiqueta/item especÃ­fico con trazabilidad
     // DE0215    => producto general sin detalle de trazabilidad
     $es_etiqueta_item = (strpos($codigo_busqueda, '-') !== false);
 
     if ($es_etiqueta_item) {
         // =========================================================
-        // BÚSQUEDA POR ETIQUETA / ITEM ESPECÍFICO
+        // BÃšSQUEDA POR ETIQUETA / ITEM ESPECÃFICO
         // =========================================================
         $stmt = $conn->prepare("
             SELECT 
@@ -181,12 +181,12 @@ if ($codigo) {
             $stock = $stock_stmt->get_result()->fetch_assoc() ?: [];
             $stock_stmt->close();
 
-            $mensaje = "<div class='alerta ok'><i class='bi bi-check-circle'></i><strong>Etiqueta válida · Item específico</strong></div>";
-            $mensaje .= "<section><h3>🔹 Código de Etiqueta Escaneado</h3><p class='codigo'>{$codigo_html}</p></section>";
+            $mensaje = "<div class='alerta ok'><i class='bi bi-check-circle'></i><strong>Etiqueta vÃ¡lida Â· Item especÃ­fico</strong></div>";
+            $mensaje .= "<section><h3>ðŸ”¹ CÃ³digo de Etiqueta Escaneado</h3><p class='codigo'>{$codigo_html}</p></section>";
 
-            $mensaje .= "<section><h3>📦 Información del Producto</h3>";
+            $mensaje .= "<section><h3>ðŸ“¦ InformaciÃ³n del Producto</h3>";
             $mensaje .= "<ul>";
-            $mensaje .= "<li><strong>Categoría:</strong> " . htmlspecialchars(($row['codigo_categoria'] ? '(' . $row['codigo_categoria'] . ') ' : '') . ($row['categoria_descripcion'] ?: $row['categoria']), ENT_QUOTES, 'UTF-8') . "</li>";
+            $mensaje .= "<li><strong>CategorÃ­a:</strong> " . htmlspecialchars(($row['codigo_categoria'] ? '(' . $row['codigo_categoria'] . ') ' : '') . ($row['categoria_descripcion'] ?: $row['categoria']), ENT_QUOTES, 'UTF-8') . "</li>";
             $mensaje .= "<li><strong>Producto:</strong> " . htmlspecialchars($row['producto'] . ' - ' . $row['unidproducto'], ENT_QUOTES, 'UTF-8') . "</li>";
             $mensaje .= "<li><strong>Stock Disponible:</strong> " . htmlspecialchars(($stock['Stock_Actual'] ?? 'No disponible') . ' - ' . $row['unidproducto'], ENT_QUOTES, 'UTF-8') . "</li>";
             $mensaje .= "<li><strong>Estado del Inventario:</strong> " . htmlspecialchars($stock['Estado'] ?? '-', ENT_QUOTES, 'UTF-8') . "</li>";
@@ -194,7 +194,7 @@ if ($codigo) {
             $mensaje .= "<div class='img-block'><p>Imagen del Producto</p><img src='scanner.php?img_prod={$id_producto}'></div>";
             $mensaje .= "</section>";
 
-            $mensaje .= "<section><h3>🧾 Detalle de Trazabilidad</h3>";
+            $mensaje .= "<section><h3>ðŸ§¾ Detalle de Trazabilidad</h3>";
             $mensaje .= "<ul>";
             $mensaje .= "<li><strong>Fecha de Ingreso:</strong> " . htmlspecialchars($row['fecha_movimiento'] ?? '-', ENT_QUOTES, 'UTF-8') . "</li>";
             $mensaje .= "<li><strong>Oficina/Sede Actual:</strong> " . htmlspecialchars($row['sede_nombre'] ?? '-', ENT_QUOTES, 'UTF-8') . "</li>";
@@ -208,14 +208,14 @@ if ($codigo) {
             $mensaje .= "</section>";
         } else {
             $mensaje = "<div class='alerta bad'><i class='bi bi-x-circle'></i><strong>Etiqueta no encontrada</strong></div>";
-            $mensaje .= "<section><h3>🔎 Código consultado</h3><p class='codigo'>{$codigo_html}</p><p class='text-muted'>Se buscó como item específico porque contiene guion.</p></section>";
+            $mensaje .= "<section><h3>ðŸ”Ž CÃ³digo consultado</h3><p class='codigo'>{$codigo_html}</p><p class='text-muted'>Se buscÃ³ como item especÃ­fico porque contiene guion.</p></section>";
         }
 
         $stmt->close();
 
     } else {
         // =========================================================
-        // BÚSQUEDA POR PRODUCTO GENERAL
+        // BÃšSQUEDA POR PRODUCTO GENERAL
         // =========================================================
         $stmt = $conn->prepare("
             SELECT 
@@ -249,12 +249,12 @@ if ($codigo) {
             $stock_actual = htmlspecialchars((string)($row['Stock_Actual'] ?? '0'), ENT_QUOTES, 'UTF-8');
             $estado_inv = htmlspecialchars($row['Estado'] ?? 'Sin estado', ENT_QUOTES, 'UTF-8');
 
-            $mensaje = "<div class='alerta ok'><i class='bi bi-check-circle'></i><strong>Producto encontrado · Consulta general</strong></div>";
-            $mensaje .= "<section><h3>🔹 Código de Producto Consultado</h3><p class='codigo'>{$codigo_producto}</p></section>";
+            $mensaje = "<div class='alerta ok'><i class='bi bi-check-circle'></i><strong>Producto encontrado Â· Consulta general</strong></div>";
+            $mensaje .= "<section><h3>ðŸ”¹ CÃ³digo de Producto Consultado</h3><p class='codigo'>{$codigo_producto}</p></section>";
 
-            $mensaje .= "<section><h3>📦 Detalle del Producto</h3>";
+            $mensaje .= "<section><h3>ðŸ“¦ Detalle del Producto</h3>";
             $mensaje .= "<ul>";
-            $mensaje .= "<li><strong>Categoría:</strong> {$categoria_full}</li>";
+            $mensaje .= "<li><strong>CategorÃ­a:</strong> {$categoria_full}</li>";
             $mensaje .= "<li><strong>Producto:</strong> [{$codigo_producto}] {$producto_nombre}" . ($unidad ? " - {$unidad}" : "") . "</li>";
             $mensaje .= "<li><strong>Stock Disponible:</strong> {$stock_actual}" . ($unidad ? " - {$unidad}" : "") . "</li>";
             $mensaje .= "<li><strong>Estado del Inventario:</strong> {$estado_inv}</li>";
@@ -263,7 +263,7 @@ if ($codigo) {
             $mensaje .= "</section>";
         } else {
             $mensaje = "<div class='alerta bad'><i class='bi bi-x-circle'></i><strong>Producto no encontrado</strong></div>";
-            $mensaje .= "<section><h3>🔎 Código consultado</h3><p class='codigo'>{$codigo_html}</p><p class='text-muted'>Se buscó como producto general porque no contiene guion.</p></section>";
+            $mensaje .= "<section><h3>ðŸ”Ž CÃ³digo consultado</h3><p class='codigo'>{$codigo_html}</p><p class='text-muted'>Se buscÃ³ como producto general porque no contiene guion.</p></section>";
         }
 
         $stmt->close();
@@ -283,7 +283,7 @@ if ($anaquel) {
         $col_nombre = $colsA['nombre'] ?: $colsA['id'];
         $col_codigo = $colsA['codigo']; // puede ser null
 
-        // Elegimos por dónde buscar: primero por "codigo" si existe, si no por "nombre"
+        // Elegimos por dÃ³nde buscar: primero por "codigo" si existe, si no por "nombre"
         $col_buscar = $col_codigo ?: $col_nombre;
 
         // 1) Buscar el anaquel
@@ -308,12 +308,12 @@ if ($anaquel) {
             $mensaje_anaquel = "<div class='alerta ok'><i class='bi bi-check-circle'></i><strong>Anaquel encontrado</strong></div>";
             $mensaje_anaquel .= "<section><h3><i class='bi bi-grid-3x3-gap'></i> Anaquel</h3>";
             $mensaje_anaquel .= "<ul>";
-            $mensaje_anaquel .= "<li><strong>Código:</strong> " . ($ana_cod ?: $anaquel_html) . "</li>";
+            $mensaje_anaquel .= "<li><strong>CÃ³digo:</strong> " . ($ana_cod ?: $anaquel_html) . "</li>";
             $mensaje_anaquel .= "<li><strong>Nombre:</strong> " . ($ana_nom ?: '-') . "</li>";
             $mensaje_anaquel .= "</ul>";
             $mensaje_anaquel .= "</section>";
 
-            // 2) Listar productos dentro del anaquel (usando etiquetado → producto)
+            // 2) Listar productos dentro del anaquel (usando etiquetado â†’ producto)
             $stP = $conn->prepare("
                 SELECT
                     p.clm_alm_producto_id AS id_producto,
@@ -349,15 +349,15 @@ if ($anaquel) {
             while ($x = $rP->fetch_assoc()) $rows[] = $x;
             
             $mensaje_anaquel .= "<section>";
-            $mensaje_anaquel .= "<h3><i class='bi bi-diagram-3'></i> Distribución por ubicación</h3>";
+            $mensaje_anaquel .= "<h3><i class='bi bi-diagram-3'></i> DistribuciÃ³n por ubicaciÃ³n</h3>";
 
             $mensaje_anaquel .= "
             <div class='hint-box'>
-                <div class='hint-title'><i class='bi bi-info-circle'></i> ¿Qué significan estos valores?</div>
+                <div class='hint-title'><i class='bi bi-info-circle'></i> Â¿QuÃ© significan estos valores?</div>
                 <ul class='hint-list'>
                 <li><strong>Stock total</strong>: cantidad actual registrada por movimientos.</li>
-                <li><strong>En este anaquel</strong>: unidades ubicadas aquí (según etiquetas generadas).</li>
-                <li><strong>En otros</strong>: diferencia entre stock total y lo ubicado en este anaquel (otros anaqueles o sin ubicación).</li>
+                <li><strong>En este anaquel</strong>: unidades ubicadas aquÃ­ (segÃºn etiquetas generadas).</li>
+                <li><strong>En otros</strong>: diferencia entre stock total y lo ubicado en este anaquel (otros anaqueles o sin ubicaciÃ³n).</li>
                 </ul>
             </div>
             ";
@@ -371,7 +371,7 @@ if ($anaquel) {
                 $mensaje_anaquel .= "<thead><tr>
                         <th>Img</th>
                         <th>Producto</th>
-                        <th>Categoría</th>
+                        <th>CategorÃ­a</th>
                         <th>Stock total</th>
                         <th>En este anaquel</th>
                         <th>En otros</th>
@@ -381,7 +381,7 @@ if ($anaquel) {
                     $idp = (int)($it['id_producto'] ?? 0);
                     $imgHtml = ($idp > 0)
                         ? "<img class='mini-img' src='scanner.php?img_prod={$idp}' alt=''>"
-                        : "<span class='no-image'>—</span>";
+                        : "<span class='no-image'>â€”</span>";
 
                     $prod = htmlspecialchars($it['producto'] ?? '', ENT_QUOTES, 'UTF-8');
                     $cat  = htmlspecialchars(($it['categoria'] ?? '') . " (" . ($it['codigo_categoria'] ?? '') . ")", ENT_QUOTES, 'UTF-8');
@@ -392,15 +392,15 @@ if ($anaquel) {
                     // En este anaquel (etiquetas)
                     $enAnaquel = (int)($it['unidades_en_anaquel'] ?? 0);
 
-                    // Diferencia (otros anaqueles o sin ubicación)
+                    // Diferencia (otros anaqueles o sin ubicaciÃ³n)
                     $enOtros = ($totalStock === null) ? null : max($totalStock - $enAnaquel, 0);
 
-                    // Badge stock total (mantienes tu lógica)
+                    // Badge stock total (mantienes tu lÃ³gica)
                     $stockTxt = ($totalStock === null) ? "-" : rtrim(rtrim(number_format($totalStock, 3, '.', ''), '0'), '.');
                     $estado   = strtolower(trim((string)($it['estado_stock'] ?? '')));
                     $badgeCls = ($estado === 'ok' || $estado === 'normal' || $estado === 'activo') ? "badge-ok" : (($estado === '') ? "badge-soft" : "badge-bad");
 
-                    // Barra de distribución (porcentaje en anaquel)
+                    // Barra de distribuciÃ³n (porcentaje en anaquel)
                     $pct = ($totalStock && $totalStock > 0) ? min(($enAnaquel / $totalStock) * 100, 100) : 0;
                     $pctCss = number_format($pct, 2, '.', '');
 
@@ -426,7 +426,7 @@ if ($anaquel) {
                         <td>
                         <div class='qty-cell other'>
                             <div class='qty-main'>$otrosTxt</div>
-                            <div class='qty-sub'>En otros anaqueles / sin ubicación</div>
+                            <div class='qty-sub'>En otros anaqueles / sin ubicaciÃ³n</div>
                         </div>
                         </td>
                     </tr>";
@@ -453,7 +453,7 @@ $conn->close();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Validación de Código | Eyc°</title>
+    <title>ValidaciÃ³n de CÃ³digo | EycÂ°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../img/eyc.png">  
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -631,7 +631,7 @@ $conn->close();
         width: 80%;
         border-radius: 4px;
     }
-    /* BOTÓN FLOTANTE DE SOPORTE */
+    /* BOTÃ“N FLOTANTE DE SOPORTE */
     .btn-flotante {
         position: fixed;
         bottom: 25px;
@@ -1029,7 +1029,7 @@ $conn->close();
   box-shadow: 4px 0 12px rgba(0,0,0,0.06);
   box-sizing: border-box;
   z-index: 900;
-  overflow-y: auto; /* Para que el menú lateral pueda hacer scroll interno si hay muchos elementos */
+  overflow-y: auto; /* Para que el menÃº lateral pueda hacer scroll interno si hay muchos elementos */
   transition: transform .3s ease;
 }
 
@@ -1090,7 +1090,7 @@ $conn->close();
 
 /* ---------- Escritorio ---------- */
 @media (min-width: 992px) {
-  /* Botón para ocultar (dentro del menú) */
+  /* BotÃ³n para ocultar (dentro del menÃº) */
   .sidebar-toggle-btn {
     position: absolute;
     top: 10px;
@@ -1109,10 +1109,10 @@ $conn->close();
   }
   .sidebar-toggle-btn:hover { background: #dbe7f6; }
 
-  /* Botón para mostrar (fuera, flotante en el borde izquierdo) */
+  /* BotÃ³n para mostrar (fuera, flotante en el borde izquierdo) */
   .sidebar-show-btn {
     position: fixed;
-    top: 160px;           /* ajústalo si tu header es más alto/bajo */
+    top: 160px;           /* ajÃºstalo si tu header es mÃ¡s alto/bajo */
     left: 10px;
     border: 0;
     background: #e9eef5;
@@ -1145,7 +1145,7 @@ $conn->close();
   }
 }
 
-/* ---------- Móvil/Tablet: no mostrar botón flotante de escritorio ---------- */
+/* ---------- MÃ³vil/Tablet: no mostrar botÃ³n flotante de escritorio ---------- */
 @media (max-width: 991px) {
   .sidebar-toggle-btn,
   .sidebar-show-btn { display: none !important; }
@@ -1154,15 +1154,15 @@ $conn->close();
 
 
 
-/* Responsive en móviles */
+/* Responsive en mÃ³viles */
 @media (max-width: 768px) {
   .menu-lateral {
-    position: fixed; /* Mejor experiencia móvil */
+    position: fixed; /* Mejor experiencia mÃ³vil */
     top: 0;
     left: 0;
     width: 250px;
     height: 100%;
-    background: #fff; /* O el color de tu menú */
+    background: #fff; /* O el color de tu menÃº */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -1197,13 +1197,13 @@ $conn->close();
   .menu-toggle span {
     width: 100%;
     height: 3px;
-    background-color: #333; /* Cambia según tu paleta */
+    background-color: #333; /* Cambia segÃºn tu paleta */
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
     transform-origin: 1px;
   }
 
-  /* ANIMACIÓN AL ACTIVAR (hamburger a X) */
+  /* ANIMACIÃ“N AL ACTIVAR (hamburger a X) */
   .menu-toggle.active span:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
   }
@@ -1368,7 +1368,7 @@ $conn->close();
 .card-opcion i{
   margin-right:8px;
 }
-/* ===== Explicación y distribución por ubicación ===== */
+/* ===== ExplicaciÃ³n y distribuciÃ³n por ubicaciÃ³n ===== */
 .hint-box{
   background:#f6f8fb;
   border:1px solid #e5e9f2;
@@ -1408,9 +1408,9 @@ $conn->close();
   font-size:12px;
   color:#6c757d;
 }
-.qty-cell.other .qty-main{ color:#6c757d; } /* plomo/gris para “En otros” */
+.qty-cell.other .qty-main{ color:#6c757d; } /* plomo/gris para â€œEn otrosâ€ */
 
-/* Barra de distribución */
+/* Barra de distribuciÃ³n */
 .distbar{
   margin-top:8px;
   height:8px;
@@ -1429,8 +1429,8 @@ $conn->close();
 
 
 /* =========================================================
-   REDISEÑO PRO - SCANNER / VALIDACIÓN Eyc
-   Mantiene la lógica: DE0215 = producto, DE0215-1 = trazabilidad
+   REDISEÃ‘O PRO - SCANNER / VALIDACIÃ“N Eyc
+   Mantiene la lÃ³gica: DE0215 = producto, DE0215-1 = trazabilidad
    ========================================================= */
 :root{
   --scan-bg:#eef3f8;
@@ -1457,7 +1457,7 @@ hr{display:none!important;}
   box-sizing:border-box;
 }
 
-/* Cuando el menú lateral está visible */
+/* Cuando el menÃº lateral estÃ¡ visible */
 @media (min-width: 1201px){
   body:not(.sidebar-collapsed) .scanner-shell{
     width:min(1500px, calc(100% - 250px));
@@ -1466,7 +1466,7 @@ hr{display:none!important;}
   }
 }
 
-/* Cuando ocultas el menú lateral */
+/* Cuando ocultas el menÃº lateral */
 body.sidebar-collapsed .scanner-shell{
   margin-left:auto!important;
   margin-right:auto!important;
@@ -1944,23 +1944,23 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
     <div class="scanner-shell">
   <section class="scanner-hero">
     <div>
-      <div class="scanner-eyebrow"><i class="bi bi-upc-scan"></i> Inventario · Scaner</div>
+      <div class="scanner-eyebrow"><i class="bi bi-upc-scan"></i> Inventario Â· Scaner</div>
       <h1>Scanner de Productos y Trazabilidad</h1>
     </div>
-    <img src="../img/cdn_etiquetas_lg.png" alt="Scanner Eyc" class="scanner-hero-logo">
+    <img src="../img/eyc_etiquetas_lg.png" alt="Scanner Eyc" class="scanner-hero-logo">
   </section>
 
   <div class="scanner-grid">
     <section class="scanner-panel" id="cardBusqueda" data-tab="<?= htmlspecialchars($tab_activa) ?>">
       <div class="scanner-panel-head">
         <div>
-          <h2><i class="bi bi-search"></i> Búsqueda operativa</h2>
+          <h2><i class="bi bi-search"></i> BÃºsqueda operativa</h2>
         </div>
-        <span class="scan-mode-pill"><i class="bi bi-lightning-charge"></i> Lectura rápida</span>
+        <span class="scan-mode-pill"><i class="bi bi-lightning-charge"></i> Lectura rÃ¡pida</span>
       </div>
 
       <div class="scanner-panel-body">
-        <img src="../img/cdn_etiquetas_lg.png" alt="Logo del sistema" class="scanner-logo-soft">
+        <img src="../img/eyc_etiquetas_lg.png" alt="Logo del sistema" class="scanner-logo-soft">
 
         <div class="tab-switch">
           <button type="button" class="tab-btn" data-tab="producto">
@@ -1980,7 +1980,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
                 <input
                   type="text"
                   name="codigo"
-                  placeholder="Etiqueta de Producto o ítem ..."
+                  placeholder="Etiqueta de Producto o Ã­tem ..."
                   value="<?= htmlspecialchars($codigo) ?>"
                   autocomplete="off"
                   <?= ($tab_activa === 'producto' ? 'required' : '') ?>
@@ -1996,7 +1996,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
         <div class="tab-pane" id="tab-anaquel">
           <div class="tab-subtitle">
             <i class="bi bi-info-circle"></i>
-            Consulta un anaquel para visualizar productos asociados, stock y distribución por ubicación.
+            Consulta un anaquel para visualizar productos asociados, stock y distribuciÃ³n por ubicaciÃ³n.
           </div>
 
           <form method="get" class="form-pro">
@@ -2006,7 +2006,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
                 <input
                   type="text"
                   name="anaquel"
-                  placeholder="Código del anaquel..."
+                  placeholder="CÃ³digo del anaquel..."
                   value="<?= htmlspecialchars($anaquel) ?>"
                   autocomplete="off"
                   <?= ($tab_activa === 'anaquel' ? 'required' : '') ?>
@@ -2027,21 +2027,21 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
         <ul class="rule-list">
           <li class="rule-item">
             <div class="rule-ic"><i class="bi bi-box-seam"></i></div>
-            <div><strong>Producto general</strong><span>Muestra stock, estado, categoría e imagen.</span></div>
+            <div><strong>Producto general</strong><span>Muestra stock, estado, categorÃ­a e imagen.</span></div>
           </li>
           <li class="rule-item">
             <div class="rule-ic"><i class="bi bi-geo-alt"></i></div>
-            <div><strong>Item específico</strong><span>Muestra trazabilidad, anaquel, sede y movimiento.</span></div>
+            <div><strong>Item especÃ­fico</strong><span>Muestra trazabilidad, anaquel, sede y movimiento.</span></div>
           </li>
           <li class="rule-item">
             <div class="rule-ic"><i class="bi bi-grid-3x3-gap"></i></div>
-            <div><strong>Anaquel</strong><span>Usa la pestaña Anaquel para revisar distribución de productos por ubicación.</span></div>
+            <div><strong>Anaquel</strong><span>Usa la pestaÃ±a Anaquel para revisar distribuciÃ³n de productos por ubicaciÃ³n.</span></div>
           </li>
         </ul>
       </div>
 
       <div class="scan-methods-pro">
-        <h3><i class="bi bi-camera"></i> Métodos de captura</h3>
+        <h3><i class="bi bi-camera"></i> MÃ©todos de captura</h3>
         <div class="opciones-validacion">
           <label class="card-opcion">
             <i class="bi bi-upload"></i> Subir imagen
@@ -2049,7 +2049,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
           </label>
 
           <button id="startScanner" class="card-opcion" type="button">
-            <i class="bi bi-camera-video"></i> Usar cámara
+            <i class="bi bi-camera-video"></i> Usar cÃ¡mara
           </button>
         </div>
       </div>
@@ -2062,7 +2062,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
   </div>
 </main>
 
-    <!-- PRIMERA LIBERÍA -->
+    <!-- PRIMERA LIBERÃA -->
     <script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
     <script>
 
@@ -2078,7 +2078,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
                         src: img.src,
                         numOfWorkers: 0,
                         inputStream: {
-                            size: 800  // ajusta tamaño si es necesario
+                            size: 800  // ajusta tamaÃ±o si es necesario
                         },
                         decoder: {
                             readers: ["code_128_reader"] // Usa el que generas
@@ -2089,7 +2089,7 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
                             const param = (tab === 'anaquel') ? 'anaquel' : 'codigo';
                             window.location.href = `?${param}=${encodeURIComponent(result.codeResult.code)}`;
                         } else {
-                            alert("No se pudo leer el código desde la imagen.");
+                            alert("No se pudo leer el cÃ³digo desde la imagen.");
                         }
                     });
                 };
@@ -2099,15 +2099,15 @@ $edad = calcularEdad("2000-04-12"); // ejemplo
         });
     </script>
 
-    <!-- SEGUNDA LIBERÍA -->
+    <!-- SEGUNDA LIBERÃA -->
     <!-- HTML5 QRCode Scanner -->
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         let encontrado = false;
-// Botón para activar el lector de cámara
+// BotÃ³n para activar el lector de cÃ¡mara
 document.getElementById('startScanner').addEventListener('click', function() {
     document.getElementById('reader').style.display = 'block';
-    this.style.display = 'none'; // ocultar botón
+    this.style.display = 'none'; // ocultar botÃ³n
 });
 
         const qrScanner = new Html5QrcodeScanner("reader", {
@@ -2121,7 +2121,7 @@ document.getElementById('startScanner').addEventListener('click', function() {
                 encontrado = true;
                 const scanResult = document.getElementById("scan-result");
                 scanResult.style.display = "block";
-                scanResult.innerText = "Código detectado: " + decodedText;
+                scanResult.innerText = "CÃ³digo detectado: " + decodedText;
                 setTimeout(() => {
                     const tab = (window.__scanTab || 'producto');
                     const param = (tab === 'anaquel') ? 'anaquel' : 'codigo';
@@ -2133,7 +2133,7 @@ document.getElementById('startScanner').addEventListener('click', function() {
             }
         );
 
-        // Detectar cuando se detiene el escaneo (por botón STOP)
+        // Detectar cuando se detiene el escaneo (por botÃ³n STOP)
         const observer = new MutationObserver(() => {
             const btnStop = document.querySelector("#reader button[aria-label='Stop scanning']");
             if (btnStop) {
@@ -2141,7 +2141,7 @@ document.getElementById('startScanner').addEventListener('click', function() {
                     if (!encontrado) {
                         const scanResult = document.getElementById("scan-result");
                         scanResult.style.display = "block";
-                        scanResult.innerText = "No se detectó ningún código.";
+                        scanResult.innerText = "No se detectÃ³ ningÃºn cÃ³digo.";
                     }
                 });
             }
@@ -2151,7 +2151,7 @@ document.getElementById('startScanner').addEventListener('click', function() {
     </script>
     
     <script>
-        // Si la URL tiene parámetros tipo "?codigo=algo", lo limpiamos en un refresh
+        // Si la URL tiene parÃ¡metros tipo "?codigo=algo", lo limpiamos en un refresh
         if (window.performance && window.performance.navigation.type === window.performance.navigation.TYPE_RELOAD) {
             if (window.location.search.includes("codigo=") || window.location.search.includes("anaquel=")) {
                 window.location.href = window.location.pathname;
@@ -2208,7 +2208,7 @@ document.addEventListener("click", function (e) {
     const inputProd = card.querySelector('input[name="codigo"]');
     const inputAna  = card.querySelector('input[name="anaquel"]');
 
-    // Estado global para que el escaneo (imagen/cámara) use el modo activo
+    // Estado global para que el escaneo (imagen/cÃ¡mara) use el modo activo
     window.__scanTab = card.getAttribute('data-tab') || 'producto';
 
     function setTab(tab){
@@ -2218,7 +2218,7 @@ document.addEventListener("click", function (e) {
       paneProd.classList.toggle('active', tab === 'producto');
       paneAna.classList.toggle('active', tab === 'anaquel');
 
-      // Importante: required dinámico para que no bloquee el submit del otro form
+      // Importante: required dinÃ¡mico para que no bloquee el submit del otro form
       if(inputProd) inputProd.required = (tab === 'producto');
       if(inputAna)  inputAna.required  = (tab === 'anaquel');
 
@@ -2229,7 +2229,7 @@ document.addEventListener("click", function (e) {
       }, 50);
     }
 
-    // Inicial según PHP (si vienes con ?anaquel=... o ?codigo=...)
+    // Inicial segÃºn PHP (si vienes con ?anaquel=... o ?codigo=...)
     setTab(window.__scanTab);
 
     btns.forEach(b => {
@@ -2242,3 +2242,4 @@ document.addEventListener("click", function (e) {
 <script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
 </body>
 </html>
+

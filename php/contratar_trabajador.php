@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
 
@@ -19,7 +19,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: ../01_contratos/nregrcdn_h.php?desde=entrevista");
     exit();
 } else {
-    echo "❌ Método no permitido.";
+    echo "âŒ MÃ©todo no permitido.";
 }
 
 ?>
+

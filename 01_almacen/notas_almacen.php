@@ -51,7 +51,7 @@ $isAdmin = (($_SESSION['web_rol'] ?? '') === 'Admin');
 
 if (!notas_can_almacen($isAdmin)) {
     if ($isAjax) {
-        notas_json_response(['ok' => false, 'message' => 'No tienes permiso para consultar notas de almacén.'], 403);
+        notas_json_response(['ok' => false, 'message' => 'No tienes permiso para consultar notas de almacÃ©n.'], 403);
     }
 
     header('Location: ../login/none_permisos.php');
@@ -329,7 +329,7 @@ if ($desde > $hasta) {
 }
 
 $buscar = trim((string)($_GET['buscar'] ?? ''));
-$modulo = trim((string)($_GET['modulo'] ?? 'Almacén'));
+$modulo = trim((string)($_GET['modulo'] ?? 'AlmacÃ©n'));
 
 if ($modulo === '') {
     $modulo = '(Todos)';
@@ -438,7 +438,7 @@ require_once __DIR__ . '/../layout/content_eyc.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notas de almacén | Eyc</title>
+    <title>Notas de almacÃ©n | Eyc</title>
     <link rel="icon" href="<?= eyc_asset('img/eyc.png') ?>" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -451,7 +451,7 @@ require_once __DIR__ . '/../layout/content_eyc.php';
     <link rel="stylesheet" href="<?= eyc_asset('assets/css/notas_almacen_eyc.css') ?>">
 </head>
 <body>
-<?php eyc_render_header(['title' => 'Notas de almacén', 'subtitle' => 'Historial operativo']); ?>
+<?php eyc_render_header(['title' => 'Notas de almacÃ©n', 'subtitle' => 'Historial operativo']); ?>
 <?php eyc_render_sidebar(); ?>
 
 <div class="main-content eyc-main eyc-main--module">
@@ -460,8 +460,8 @@ require_once __DIR__ . '/../layout/content_eyc.php';
     <main class="notas-page" data-notas-page>
         <section class="notas-hero">
             <div>
-                <span class="notas-eyebrow"><i class="bi bi-receipt-cutoff"></i> Almacén en tiempo real</span>
-                <h1>Notas de almacén</h1>
+                <span class="notas-eyebrow"><i class="bi bi-receipt-cutoff"></i> AlmacÃ©n en tiempo real</span>
+                <h1>Notas de almacÃ©n</h1>
                 <p>Consulta de notas, unidades, responsables y productos asociados segun el historial de la aplicacion de escritorio.</p>
             </div>
             <div class="notas-hero-actions">
@@ -733,7 +733,9 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
@@ -747,3 +749,4 @@ if (isset($conn) && $conn instanceof mysqli) {
     $conn->close();
 }
 ?>
+

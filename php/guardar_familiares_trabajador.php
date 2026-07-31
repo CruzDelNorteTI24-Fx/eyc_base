@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 require_once("../.c0nn3ct/db_secure.php");
 session_start();
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $stmt->close();
     }
-    // 🔶 GUARDAR CONTACTO DE EMERGENCIA
+    // ðŸ”¶ GUARDAR CONTACTO DE EMERGENCIA
     $emerg_parentesco = $_POST['emerg_parentesco'] ?? '';
     $emerg_nombre     = $_POST['emerg_nombre'] ?? '';
     $emerg_celular    = $_POST['emerg_celular'] ?? '';
@@ -45,11 +45,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         header("Location: ../01_contratos/nregrcdn_h.php?familiar=ok");
         exit();
     }
-    // Llamado desde guardar_trabajador.php: NO cerrar conexión ni redirigir.
+    // Llamado desde guardar_trabajador.php: NO cerrar conexiÃ³n ni redirigir.
     // Devolvemos el control al script principal para que termine (planilla, exito, etc.)
 
 } else {
     http_response_code(405);
-    echo "Método no permitido.";
+    echo "MÃ©todo no permitido.";
 }
 ?>
+

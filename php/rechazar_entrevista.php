@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = intval($_POST['id_entrevista'] ?? 0);
     $comentario = trim($_POST['comentario'] ?? '');
@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
         $conn->close();
     } else {
-        echo "ID o comentario inválido";
+        echo "ID o comentario invÃ¡lido";
     }
 }
 ?>
+

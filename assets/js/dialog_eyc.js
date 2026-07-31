@@ -46,6 +46,10 @@
           </div>
         </div>
         <p class="eyc-dialog__message"></p>
+        <label class="eyc-dialog__inputwrap" hidden>
+          <span class="eyc-dialog__input-label"></span>
+          <input class="eyc-dialog__input" autocomplete="off">
+        </label>
         <div class="eyc-dialog__actions">
           <button class="eyc-dialog__btn" type="button" data-eyc-dialog-cancel>Cancelar</button>
           <button class="eyc-dialog__btn eyc-dialog__btn--primary" type="button" data-eyc-dialog-ok>Aceptar</button>
@@ -59,19 +63,49 @@
       icon: root.querySelector('.eyc-dialog__icon i'),
       title: root.querySelector('.eyc-dialog__title'),
       message: root.querySelector('.eyc-dialog__message'),
+      inputWrap: root.querySelector('.eyc-dialog__inputwrap'),
+      inputLabel: root.querySelector('.eyc-dialog__input-label'),
+      input: root.querySelector('.eyc-dialog__input'),
       ok: root.querySelector('[data-eyc-dialog-ok]'),
       cancel: root.querySelector('.eyc-dialog__actions [data-eyc-dialog-cancel]'),
       cancelers: root.querySelectorAll('[data-eyc-dialog-cancel]'),
     };
 
-    elements.ok.addEventListener('click', () => resolveActive(true));
+    const accept = () => {
+      if (!active) return;
+      if (active.options.mode === 'prompt') {
+        const value = elements.input.value;
+        if (active.options.required && !String(value).trim()) {
+          elements.input.classList.add('is-invalid');
+          elements.input.focus();
+          return;
+        }
+        resolveActive(value);
+        return;
+      }
+      resolveActive(true);
+    };
+
+    const cancel = () => {
+      if (!active) return;
+      resolveActive(active.options.mode === 'prompt' ? null : false);
+    };
+
+    elements.ok.addEventListener('click', accept);
+    elements.input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        accept();
+      }
+    });
+    elements.input.addEventListener('input', () => elements.input.classList.remove('is-invalid'));
     elements.cancelers.forEach((el) => {
-      el.addEventListener('click', () => resolveActive(false));
+      el.addEventListener('click', cancel);
     });
 
     document.addEventListener('keydown', (event) => {
       if (!active || !elements.root.classList.contains('is-open')) return;
-      if (event.key === 'Escape') resolveActive(false);
+      if (event.key === 'Escape') cancel();
     });
 
     return elements;
@@ -97,6 +131,7 @@
     const opts = active.options;
     const variant = normalizeVariant(opts.variant);
     const els = ensure();
+    const isPrompt = opts.mode === 'prompt';
 
     els.root.dataset.variant = variant;
     els.icon.className = `bi ${iconByVariant[variant] || iconByVariant.info}`;
@@ -106,9 +141,35 @@
     els.cancel.textContent = opts.cancelText || 'Cancelar';
     els.cancel.style.display = opts.showCancel ? '' : 'none';
 
+    els.inputWrap.hidden = !isPrompt;
+    els.input.classList.remove('is-invalid');
+    if (isPrompt) {
+      els.inputLabel.textContent = opts.inputLabel || 'Dato requerido';
+      els.input.type = opts.inputType || 'text';
+      els.input.placeholder = opts.placeholder || '';
+      els.input.value = opts.value || '';
+      els.input.autocomplete = opts.autocomplete || 'off';
+      els.input.name = opts.name || ('eyc_prompt_' + Date.now());
+      els.input.setAttribute('autocorrect', 'off');
+      els.input.setAttribute('autocapitalize', 'off');
+      els.input.setAttribute('spellcheck', 'false');
+      els.input.setAttribute('data-lpignore', 'true');
+      els.input.setAttribute('data-1p-ignore', 'true');
+      els.input.setAttribute('data-form-type', 'other');
+      if (opts.preventAutofill) {
+        els.input.readOnly = true;
+        window.setTimeout(() => {
+          els.input.value = '';
+          els.input.readOnly = false;
+        }, 80);
+      } else {
+        els.input.readOnly = false;
+      }
+    }
+
     els.root.classList.add('is-open');
     els.root.setAttribute('aria-hidden', 'false');
-    window.setTimeout(() => els.ok.focus(), 40);
+    window.setTimeout(() => (isPrompt ? els.input : els.ok).focus(), 40);
   };
 
   const open = (options) => new Promise((resolve) => {
@@ -134,6 +195,25 @@
         confirmText: options.confirmText || 'Aceptar',
         cancelText: options.cancelText || 'Cancelar',
         showCancel: true,
+      });
+    },
+    prompt(message, options = {}) {
+      return open({
+        mode: 'prompt',
+        message,
+        variant: options.variant || options.type || 'warning',
+        title: options.title || 'Confirmar accion',
+        confirmText: options.confirmText || 'Aceptar',
+        cancelText: options.cancelText || 'Cancelar',
+        showCancel: true,
+        inputType: options.inputType || 'text',
+        inputLabel: options.inputLabel || 'Dato requerido',
+        placeholder: options.placeholder || '',
+        autocomplete: options.autocomplete || 'off',
+        name: options.name || '',
+        preventAutofill: Boolean(options.preventAutofill),
+        required: options.required !== false,
+        value: options.value || '',
       });
     },
   };

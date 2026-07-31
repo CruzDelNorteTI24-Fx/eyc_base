@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 if (!isset($_GET['id'])) {
     die("ID no especificado.");
 }
@@ -7,7 +7,7 @@ $id = intval($_GET['id']);
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
 if ($conn->connect_error) {
-    die("Conexión fallida: " . $conn->connect_error);
+    die("ConexiÃ³n fallida: " . $conn->connect_error);
 }
 
 $stmt = $conn->prepare("SELECT clm_subircv FROM entrevistas WHERE id_entrevista = ?");
@@ -16,7 +16,7 @@ $stmt->execute();
 $stmt->store_result();
 
 if ($stmt->num_rows === 0) {
-    die("No se encontró el archivo.");
+    die("No se encontrÃ³ el archivo.");
 }
 
 $stmt->bind_result($pdf);
@@ -28,3 +28,4 @@ header("Content-type: application/pdf");
 header("Content-Disposition: inline; filename=cv_entrevista_$id.pdf");
 echo $pdf;
 exit;
+

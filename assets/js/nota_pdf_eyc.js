@@ -19,6 +19,10 @@
         const generators = {
             NS: window.eycNotaSalidaAlmacen,
             NE: window.eycNotaEntradaAlmacen,
+            RE: window.eycNotaEntradaBienes,
+            RS: window.eycNotaSalidaBienes,
+            CE: window.eycNotaEntradaBienes,
+            CS: window.eycNotaSalidaBienes,
             CM: window.eycNotaTanqueada,
             AB: window.eycNotaAbastecimiento
         };
@@ -177,3 +181,4 @@
         generate
     };
 })(window, document);
+

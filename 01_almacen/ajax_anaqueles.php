@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once("../.c0nn3ct/db_secure.php");
 header('Content-Type: application/json; charset=utf-8');
 

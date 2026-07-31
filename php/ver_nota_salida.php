@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
 // php\ver_nota_salida.php:
@@ -14,12 +14,12 @@ function fmt_qty($n){
 $id_mov = intval($_GET['id'] ?? 0);
 
 if ($conn->connect_error) {
-    echo "<div class='nota360 nota-empty nota-error'><strong>Error de conexión</strong><p>No se pudo conectar a la base de datos.</p></div>";
+    echo "<div class='nota360 nota-empty nota-error'><strong>Error de conexiÃ³n</strong><p>No se pudo conectar a la base de datos.</p></div>";
     exit;
 }
 
 if ($id_mov <= 0) {
-    echo "<div class='nota360 nota-empty nota-error'><strong>Movimiento no válido</strong><p>No se recibió un ID de movimiento correcto.</p></div>";
+    echo "<div class='nota360 nota-empty nota-error'><strong>Movimiento no vÃ¡lido</strong><p>No se recibiÃ³ un ID de movimiento correcto.</p></div>";
     exit;
 }
 
@@ -73,8 +73,8 @@ if (!$nota) {
       .nota-empty p{margin:0;color:#7f1d1d;}
     </style>
     <div class="nota360 nota-empty">
-        <strong>No se encontró la Nota de Almacén</strong>
-        <p>Este movimiento no tiene una nota asociada o la relación ya no existe.</p>
+        <strong>No se encontrÃ³ la Nota de AlmacÃ©n</strong>
+        <p>Este movimiento no tiene una nota asociada o la relaciÃ³n ya no existe.</p>
     </div>
     <?php
     $conn->close();
@@ -411,12 +411,12 @@ $conn->close();
 <div class="nota360">
   <div class="nota-hero">
     <div>
-      <div class="nota-kicker"><i class="bi bi-receipt-cutoff"></i> Notas de Almacén</div>
+      <div class="nota-kicker"><i class="bi bi-receipt-cutoff"></i> Notas de AlmacÃ©n</div>
       <h2><?=h($nota_codigo)?></h2>
-      <p>Detalle asociado al movimiento #<?=h($id_mov)?> · trazabilidad de almacén</p>
+      <p>Detalle asociado al movimiento #<?=h($id_mov)?> Â· trazabilidad de almacÃ©n</p>
     </div>
     <div class="nota-hero-right">
-      <span>Fecha de emisión</span>
+      <span>Fecha de emisiÃ³n</span>
       <strong><?=h($fecha)?></strong>
       <small><?=h($hora)?> hrs</small>
     </div>
@@ -455,7 +455,7 @@ $conn->close();
     <div class="nota-card">
       <div class="ic"><i class="bi bi-diagram-3"></i></div>
       <div>
-        <span>Área / Módulo</span>
+        <span>Ãrea / MÃ³dulo</span>
         <strong><?=h($nota['area'])?></strong>
       </div>
     </div>
@@ -482,7 +482,7 @@ $conn->close();
 
   <div class="nota-section-title">
     <h4><i class="bi bi-box-seam"></i> Productos registrados</h4>
-    <span class="nota-pill"><i class="bi bi-list-check"></i> <?=number_format(count($productos))?> ítem(s)</span>
+    <span class="nota-pill"><i class="bi bi-list-check"></i> <?=number_format(count($productos))?> Ã­tem(s)</span>
   </div>
 
   <?php if(count($productos) > 0): ?>
@@ -492,7 +492,7 @@ $conn->close();
           <tr>
             <th style="width:30%;">Producto</th>
             <th style="width:14%;">Cantidad</th>
-            <th>Observación</th>
+            <th>ObservaciÃ³n</th>
           </tr>
         </thead>
         <tbody>
@@ -501,11 +501,11 @@ $conn->close();
               <td>
                 <span class="prod-main"><?=h($prod['producto'])?></span>
                 <span class="prod-sub">
-                  <?=h($prod['codigo'] ?: 'Sin código')?><?=!empty($prod['categoria']) ? ' · ' . h($prod['categoria']) : ''?>
+                  <?=h($prod['codigo'] ?: 'Sin cÃ³digo')?><?=!empty($prod['categoria']) ? ' Â· ' . h($prod['categoria']) : ''?>
                 </span>
               </td>
               <td><span class="qty-badge"><?=h(fmt_qty($prod['cantidad']))?></span></td>
-              <td class="obs-note"><?=h($prod['observacion'] ?: '—')?></td>
+              <td class="obs-note"><?=h($prod['observacion'] ?: 'â€”')?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -517,3 +517,4 @@ $conn->close();
     </div>
   <?php endif; ?>
 </div>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start();
 session_start();
 date_default_timezone_set('America/Lima');
@@ -56,3 +56,4 @@ try {
     error_log('movimiento_api.php: ' . $e->getMessage());
     alm_json(['ok' => false, 'message' => 'No se pudo completar la operacion: ' . $e->getMessage()], 500);
 }
+

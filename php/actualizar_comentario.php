@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['usuario'])) { http_response_code(403); exit("No auth"); }
 if (!defined('ACCESS_GRANTED')) define('ACCESS_GRANTED', true);
@@ -14,9 +14,9 @@ $id  = isset($_POST['id_entrevista']) ? (int)$_POST['id_entrevista'] : 0;
 $campo = $_POST['campo'] ?? '';
 $valor = $_POST['valor'] ?? '';
 
-if ($id <= 0 || $campo === '') { http_response_code(400); exit("Parámetros inválidos"); }
+if ($id <= 0 || $campo === '') { http_response_code(400); exit("ParÃ¡metros invÃ¡lidos"); }
 
-// Whitelist para evitar inyección por nombre de columna
+// Whitelist para evitar inyecciÃ³n por nombre de columna
 $permitidos = [
   'observaciones',
   'clm_comentario_entrevistapersonal',
@@ -43,3 +43,4 @@ if ($stmt->execute()) {
 }
 $stmt->close();
 $conn->close();
+

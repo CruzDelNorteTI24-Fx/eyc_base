@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 if (!function_exists('alm_json')) {
     function alm_json(array $payload, int $status = 200): void {
         while (ob_get_level() > 0) {

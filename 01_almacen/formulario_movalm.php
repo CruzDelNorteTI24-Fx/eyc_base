@@ -142,7 +142,7 @@ $canEditPrices = alm_can_edit_prices();
 
         <section class="alm-modebar" aria-label="Tipo de movimiento">
             <div class="alm-modebar__title">
-                <strong>Formulario de Almacén</strong>
+                <strong>Formulario de AlmacÃ©n</strong>
             </div>
             <div class="alm-modebar__buttons">
                 <button type="button" class="is-active" id="almEntradaMode">
@@ -333,7 +333,7 @@ $canEditPrices = alm_can_edit_prices();
                                             <td><span class="alm-badge">#<?= alm_page_h($movement['id'] ?? '') ?></span></td>
                                             <td><?= alm_page_h($movement['fecha'] ?? '') ?></td>
                                             <td><span class="alm-badge <?= alm_page_h($badge) ?>"><?= alm_page_h($tipo) ?></span></td>
-                                            <td><strong>(<?= alm_page_h($movement['codigo'] ?? '') ?>) <?= alm_page_h($movement['producto'] ?? '') ?></strong><br><small><?= alm_page_h($movement['unidad'] ?? '') ?> · <?= alm_page_h($movement['ubicacion'] ?? '') ?></small></td>
+                                            <td><strong>(<?= alm_page_h($movement['codigo'] ?? '') ?>) <?= alm_page_h($movement['producto'] ?? '') ?></strong><br><small><?= alm_page_h($movement['unidad'] ?? '') ?> Â· <?= alm_page_h($movement['ubicacion'] ?? '') ?></small></td>
                                             <td><?= alm_page_h(alm_page_fmt_qty($movement['cantidad'] ?? 0)) ?></td>
                                             <td><?= alm_page_h($movement['nota'] ?? '-') ?></td>
                                             <td><?= alm_page_h($movement['usuario'] ?? '-') ?></td>
@@ -368,7 +368,9 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
@@ -379,3 +381,4 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
 </body>
 </html>
+

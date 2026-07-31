@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ini_set('session.gc_maxlifetime', (string) (8 * 60 * 60));
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
@@ -42,10 +42,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $fechahorahoy = date('Y-m-d');
     $correo      = $_POST['correo'] ?? '';
     $domicilio   = $_POST['domicilio'] ?? '';
-    $fecha_registro = date("Y-m-d H:i:s"); // Hora exacta del servidor (Perú)
+    $fecha_registro = date("Y-m-d H:i:s"); // Hora exacta del servidor (PerÃº)
     $usuarioreg  = $_SESSION['id_usuario'];
     $id_entrevista  = isset($_POST['id_entrevista']) ? (int) $_POST['id_entrevista'] : null;
-    // === RÉGIMEN (Planilla / RPH) ===
+    // === RÃ‰GIMEN (Planilla / RPH) ===
     // Si no llega el POST (por defecto Planilla)
     $regimen = isset($_POST['regimen']) ? strtoupper(trim($_POST['regimen'])) : 'PLANILLA';
     // Mapeo: PLANILLA => 1, RPH => 2
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($checkLicencia) {
         $nlicencia       = $_POST['nlicencia'] ?? '';
         $tipo_licencia   = $_POST['tipo_licencia'] ?? '';
-        $categoria       = $_POST['categoría_licencia'] ?? '';
+        $categoria       = $_POST['categorÃ­a_licencia'] ?? '';
         $lic_expedicion  = !empty($_POST['fecha_licencia_expedicion']) ? $_POST['fecha_licencia_expedicion'] : null;
         $lic_revaluacion = !empty($_POST['fecha_licencia_revaluacion']) ? $_POST['fecha_licencia_revaluacion'] : null;
     } else {
@@ -127,12 +127,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $stmt->execute();
 
-    // 👇 Insertar familiares después del trabajador
+    // ðŸ‘‡ Insertar familiares despuÃ©s del trabajador
     $id_trabajador = $conn->insert_id;
 
     if ($id_entrevista) {
         $stmt_estado = $conn->prepare("UPDATE entrevistas SET clm_estado = 5 WHERE id_entrevista = ?");
-        $stmt_estado->bind_param("i", $id_entrevista); // Ahora sí es entero real
+        $stmt_estado->bind_param("i", $id_entrevista); // Ahora sÃ­ es entero real
         $stmt_estado->execute();
         $stmt_estado->close();
     }
@@ -149,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $pl_estado     = 1; // 1=VIGENTE
     $fecha_ingreso = date('Y-m-d');
     $fecha_reg     = date('Y-m-d H:i:s');
-    $comentario    = 'Alta automática desde registro de trabajador';
+    $comentario    = 'Alta automÃ¡tica desde registro de trabajador';
 
     $sql_tpln = "INSERT INTO tb_tpln
         (clm_pl_trabid, clm_pl_tipo, clm_pl_tra_estado, clm_pl_fechregistro, clm_pl_fechaingrespl, clm_pl_fechasalida, clm_pl_doc, clm_pl_com)
@@ -178,3 +178,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     exit();
 }
 ?>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start();
 session_start();
 date_default_timezone_set('America/Lima');
@@ -463,7 +463,7 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                     <thead>
                         <tr>
                             <th>Fecha</th>
-                            <th>N° Mov.</th>
+                            <th>NÂ° Mov.</th>
                             <th>Tipo Mov.</th>
                             <th>Categoria</th>
                             <th>Producto</th>
@@ -565,3 +565,4 @@ if (isset($conn) && $conn instanceof mysqli) {
     $conn->close();
 }
 ?>
+

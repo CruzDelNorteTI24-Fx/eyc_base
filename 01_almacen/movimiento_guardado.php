@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/movimiento_backend.php';
 
 function alm_action_save_entrada(mysqli $conn): void {
@@ -282,3 +282,4 @@ function alm_action_save_salida(mysqli $conn): void {
         'nota_codigo' => $notaCodigo,
     ]);
 }
+

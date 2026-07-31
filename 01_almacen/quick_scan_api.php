@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 ob_start();
 define('ACCESS_GRANTED', true);
 
@@ -249,3 +249,4 @@ eyc_qs_json([
     'message' => $isEtiqueta ? 'Etiqueta no encontrada.' : 'Producto no encontrado.',
     'suggestions' => $suggestions,
 ], 404);
+

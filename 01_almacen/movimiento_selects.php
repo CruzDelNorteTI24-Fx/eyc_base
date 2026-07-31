@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/movimiento_backend.php';
 
 function alm_select_sedes(mysqli $conn): array {
@@ -144,3 +144,4 @@ function alm_action_buses(mysqli $conn): void {
 
     alm_json(['ok' => true, 'rows' => $rows]);
 }
+

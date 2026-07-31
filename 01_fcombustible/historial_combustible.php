@@ -993,7 +993,9 @@ window.eyc_NOTA_PDF_CONFIG = {
 </script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
@@ -1002,3 +1004,4 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/header_eyc.js') ?>"></script>
 </body>
 </html>
+

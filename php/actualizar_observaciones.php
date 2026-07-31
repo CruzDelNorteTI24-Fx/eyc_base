@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 // ../php/actualizar_observaciones.php
 declare(strict_types=1);
 session_start();
 
 header('Content-Type: text/plain; charset=utf-8');
 
-// 1) Sesión y permisos
+// 1) SesiÃ³n y permisos
 if (!isset($_SESSION['usuario'])) {
     http_response_code(401);
     exit("No autorizado");
@@ -18,7 +18,7 @@ if (!($_SESSION['web_rol'] === 'Admin' || in_array(6, $_SESSION['permisos'] ?? [
 // 2) CSRF
 if (empty($_POST['csrf']) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf'])) {
     http_response_code(403);
-    exit("CSRF inválido");
+    exit("CSRF invÃ¡lido");
 }
 
 // 3) Datos
@@ -27,12 +27,12 @@ $obs = isset($_POST['observaciones']) ? trim((string)$_POST['observaciones']) : 
 
 if ($id <= 0) {
     http_response_code(400);
-    exit("ID inválido");
+    exit("ID invÃ¡lido");
 }
-// (Opcional) límite de tamaño
+// (Opcional) lÃ­mite de tamaÃ±o
 if (mb_strlen($obs) > 2000) {
     http_response_code(400);
-    exit("Observaciones demasiado largas (máx. 2000)");
+    exit("Observaciones demasiado largas (mÃ¡x. 2000)");
 }
 
 define('ACCESS_GRANTED', true);
@@ -42,7 +42,7 @@ require_once("../.c0nn3ct/db_secure.php"); // usa el mismo conector que el lista
 $stmt = $conn->prepare("UPDATE entrevistas SET observaciones = ? WHERE id_entrevista = ?");
 if (!$stmt) {
     http_response_code(500);
-    exit("Error de preparación");
+    exit("Error de preparaciÃ³n");
 }
 $stmt->bind_param("si", $obs, $id);
 $ok = $stmt->execute();
@@ -56,3 +56,4 @@ if ($ok) {
 
 $stmt->close();
 $conn->close();
+

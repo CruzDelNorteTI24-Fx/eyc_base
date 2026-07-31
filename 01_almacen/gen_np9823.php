@@ -38,7 +38,7 @@ function estado_stock_class($estado, $stock) {
     $e = mb_strtolower(trim((string)$estado), 'UTF-8');
     $s = (float)($stock ?? 0);
     if ($s <= 0 || strpos($e, 'sin') !== false) return 'stock-zero';
-    if (strpos($e, 'bajo') !== false || strpos($e, 'mín') !== false || strpos($e, 'min') !== false) return 'stock-low';
+    if (strpos($e, 'bajo') !== false || strpos($e, 'mÃ­n') !== false || strpos($e, 'min') !== false) return 'stock-low';
     return 'stock-ok';
 }
 
@@ -190,7 +190,7 @@ foreach ($rows as $r) {
     if ((float)($r['stock'] ?? 0) <= 0) $sin_stock_pagina++;
 }
 
-// ---------- Render catálogo ----------
+// ---------- Render catÃ¡logo ----------
 $mensaje = "";
 
 if (count($rows) > 0) {
@@ -237,7 +237,7 @@ if (count($rows) > 0) {
                 $mensaje .= "<a href='" . h(build_page_url($i)) . "'>" . $i . "</a>";
             }
         } elseif (($i == 2 && $pagina > 4) || ($i == $total_paginas - 1 && $pagina < $total_paginas - 3)) {
-            $mensaje .= "<span class='muted'>…</span>";
+            $mensaje .= "<span class='muted'>â€¦</span>";
         }
     }
     $mensaje .= "</div>";
@@ -245,7 +245,7 @@ if (count($rows) > 0) {
     $mensaje .= "<div class='empty-catalog'>";
     $mensaje .= "  <div class='empty-icon'><i class='bi bi-box-seam'></i></div>";
     $mensaje .= "  <h3>No hay productos con los filtros actuales</h3>";
-    $mensaje .= "  <p>Prueba limpiando los filtros o revisando el código escaneado.</p>";
+    $mensaje .= "  <p>Prueba limpiando los filtros o revisando el cÃ³digo escaneado.</p>";
     $mensaje .= "  <a class='btn-empty' href='gen_np9823.php'><i class='bi bi-arrow-counterclockwise'></i> Limpiar filtros</a>";
     $mensaje .= "</div>";
 }
@@ -257,14 +257,14 @@ if (count($rows) > 0) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualización de Productos | Eyc°</title>
+    <title>VisualizaciÃ³n de Productos | EycÂ°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../img/eyc.png">    
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">    
-    <!-- Lector de códigos (QR/Code128/EAN/Code39, etc.) -->
+    <!-- Lector de cÃ³digos (QR/Code128/EAN/Code39, etc.) -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
@@ -437,7 +437,7 @@ hr {
     width: 80%;
     border-radius: 4px;
 }
-/* BOTÓN FLOTANTE DE SOPORTE */
+/* BOTÃ“N FLOTANTE DE SOPORTE */
 .btn-flotante {
     position: fixed;
     bottom: 25px;
@@ -969,7 +969,7 @@ margin: 20px
   box-shadow: 4px 0 12px rgba(0,0,0,0.06);
   box-sizing: border-box;
   z-index: 900;
-  overflow-y: auto; /* Para que el menú lateral pueda hacer scroll interno si hay muchos elementos */
+  overflow-y: auto; /* Para que el menÃº lateral pueda hacer scroll interno si hay muchos elementos */
   transition: transform .3s ease;
 }
 
@@ -1030,7 +1030,7 @@ margin: 20px
 
 /* ---------- Escritorio ---------- */
 @media (min-width: 992px) {
-  /* Botón para ocultar (dentro del menú) */
+  /* BotÃ³n para ocultar (dentro del menÃº) */
   .sidebar-toggle-btn {
     position: absolute;
     top: 10px;
@@ -1049,10 +1049,10 @@ margin: 20px
   }
   .sidebar-toggle-btn:hover { background: #dbe7f6; }
 
-  /* Botón para mostrar (fuera, flotante en el borde izquierdo) */
+  /* BotÃ³n para mostrar (fuera, flotante en el borde izquierdo) */
   .sidebar-show-btn {
     position: fixed;
-    top: 160px;           /* ajústalo si tu header es más alto/bajo */
+    top: 160px;           /* ajÃºstalo si tu header es mÃ¡s alto/bajo */
     left: 10px;
     border: 0;
     background: #e9eef5;
@@ -1085,7 +1085,7 @@ margin: 20px
   }
 }
 
-/* ---------- Móvil/Tablet: no mostrar botón flotante de escritorio ---------- */
+/* ---------- MÃ³vil/Tablet: no mostrar botÃ³n flotante de escritorio ---------- */
 @media (max-width: 991px) {
   .sidebar-toggle-btn,
   .sidebar-show-btn { display: none !important; }
@@ -1094,15 +1094,15 @@ margin: 20px
 
 
 
-/* Responsive en móviles */
+/* Responsive en mÃ³viles */
 @media (max-width: 768px) {
   .menu-lateral {
-    position: fixed; /* Mejor experiencia móvil */
+    position: fixed; /* Mejor experiencia mÃ³vil */
     top: 0;
     left: 0;
     width: 250px;
     height: 100%;
-    background: #fff; /* O el color de tu menú */
+    background: #fff; /* O el color de tu menÃº */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -1137,13 +1137,13 @@ margin: 20px
   .menu-toggle span {
     width: 100%;
     height: 3px;
-    background-color: #333; /* Cambia según tu paleta */
+    background-color: #333; /* Cambia segÃºn tu paleta */
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
     transform-origin: 1px;
   }
 
-  /* ANIMACIÓN AL ACTIVAR (hamburger a X) */
+  /* ANIMACIÃ“N AL ACTIVAR (hamburger a X) */
   .menu-toggle.active span:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
   }
@@ -1182,13 +1182,13 @@ margin: 20px
   .menu-toggle span {
     width: 100%;
     height: 3px;
-    background-color: #333; /* Cambia según tu paleta */
+    background-color: #333; /* Cambia segÃºn tu paleta */
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
     transform-origin: 1px;
   }
 
-  /* ANIMACIÓN AL ACTIVAR (hamburger a X) */
+  /* ANIMACIÃ“N AL ACTIVAR (hamburger a X) */
   .menu-toggle.active span:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
   }
@@ -1280,7 +1280,7 @@ margin: 20px
     
 
 /* =========================================================
-   REDISEÑO GERENCIAL - CATÁLOGO DE PRODUCTOS Eyc
+   REDISEÃ‘O GERENCIAL - CATÃLOGO DE PRODUCTOS Eyc
    ========================================================= */
 :root{
   --cat-bg:#eef3f8;
@@ -1400,7 +1400,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
   overflow:hidden!important;
 }
 /* =========================================================
-   MODAL NOTA DE ALMACÉN ENCIMA DEL DRAWER
+   MODAL NOTA DE ALMACÃ‰N ENCIMA DEL DRAWER
    ========================================================= */
 #modal-nota{
   z-index:1000005!important;
@@ -1576,11 +1576,11 @@ body.drawer-open{
   <section class="catalog-page">
     <section class="catalog-hero">
       <div>
-        <div class="catalog-eyebrow"><i class="bi bi-boxes"></i> Inventario · Catálogo maestro</div>
-        <h1>Catálogo de Productos</h1>
-        <p>Vista ordenada para consultar productos, códigos, categorías, stock y movimientos de almacén.</p>
+        <div class="catalog-eyebrow"><i class="bi bi-boxes"></i> Inventario Â· CatÃ¡logo maestro</div>
+        <h1>CatÃ¡logo de Productos</h1>
+        <p>Vista ordenada para consultar productos, cÃ³digos, categorÃ­as, stock y movimientos de almacÃ©n.</p>
       </div>
-      <img src="../img/cdn_productos_lg.png" alt="Catálogo de productos" class="catalog-hero-logo">
+      <img src="../img/cdn_productos_lg.png" alt="CatÃ¡logo de productos" class="catalog-hero-logo">
     </section>
 
     <div class="catalog-hero-metrics">
@@ -1590,11 +1590,11 @@ body.drawer-open{
       </div>
       <div class="catalog-mini-kpi kpi-page">
         <div class="ic"><i class="bi bi-grid-3x3-gap"></i></div>
-        <div><span>Mostrados en página</span><strong><?= count($rows) ?></strong></div>
+        <div><span>Mostrados en pÃ¡gina</span><strong><?= count($rows) ?></strong></div>
       </div>
       <div class="catalog-mini-kpi kpi-stock">
         <div class="ic"><i class="bi bi-clipboard-data"></i></div>
-        <div><span>Stock página</span><strong><?= h(fmt_num($stock_pagina)) ?></strong></div>
+        <div><span>Stock pÃ¡gina</span><strong><?= h(fmt_num($stock_pagina)) ?></strong></div>
       </div>
       <div class="catalog-mini-kpi kpi-filter">
         <div class="ic"><i class="bi bi-funnel"></i></div>
@@ -1610,14 +1610,14 @@ body.drawer-open{
     <form id="formFiltros" class="catalog-filters" method="get">
       <div class="title">
         <i class="bi bi-funnel"></i>
-        <span>Filtros del catálogo</span>
+        <span>Filtros del catÃ¡logo</span>
       </div>
 
       <div class="catalog-filter-grid">
         <div class="input-icon">
           <i class="bi bi-collection"></i>
           <select class="form-select" id="categoria" name="categoria">
-            <option value="">Todas las categorías</option>
+            <option value="">Todas las categorÃ­as</option>
             <?php
               $cat_result = $conn->query("SELECT DISTINCT clm_alm_categoria_descripcion FROM tb_alm_categoria ORDER BY clm_alm_categoria_descripcion");
               while ($cat = $cat_result->fetch_assoc()) {
@@ -1631,7 +1631,7 @@ body.drawer-open{
 
         <div class="input-icon">
           <i class="bi bi-upc-scan"></i>
-          <input type="text" class="form-control" id="codigo" name="codigo" value="<?= $codigo_val ?>" placeholder="Código de producto" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarPorCodigo();}">
+          <input type="text" class="form-control" id="codigo" name="codigo" value="<?= $codigo_val ?>" placeholder="CÃ³digo de producto" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarPorCodigo();}">
         </div>
 
         <div class="input-icon">
@@ -1647,8 +1647,8 @@ body.drawer-open{
 
     <div class="catalog-actions">
       <div class="left">
-        <span class="catalog-chip"><i class="bi bi-file-earmark-text"></i> Página <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></span>
-        <span class="catalog-chip"><i class="bi bi-box"></i> <?= number_format($por_pagina) ?> por página</span>
+        <span class="catalog-chip"><i class="bi bi-file-earmark-text"></i> PÃ¡gina <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></span>
+        <span class="catalog-chip"><i class="bi bi-box"></i> <?= number_format($por_pagina) ?> por pÃ¡gina</span>
       </div>
       <div class="right">
         <?php if($categoria_filtro !== ''): ?><span class="catalog-chip"><i class="bi bi-collection"></i> <?= h($categoria_filtro) ?></span><?php endif; ?>
@@ -1661,9 +1661,9 @@ body.drawer-open{
       <div class="catalog-panel-head">
         <div>
           <h3><i class="bi bi-card-checklist"></i> Productos registrados</h3>
-          <p>Cards compactas con imagen, código, categoría, stock y acceso directo a movimientos.</p>
+          <p>Cards compactas con imagen, cÃ³digo, categorÃ­a, stock y acceso directo a movimientos.</p>
         </div>
-        <div class="catalog-page-pill">Página <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></div>
+        <div class="catalog-page-pill">PÃ¡gina <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></div>
       </div>
       <div class="catalog-panel-body">
         <div class="resultado"><?= $mensaje ?></div>
@@ -1690,7 +1690,7 @@ body.drawer-open{
 <div id="scannerModal" class="modal">
   <div class="modal-content" style="max-width:560px">
     <span class="cerrar" onclick="detenerScanner()">&times;</span>
-    <h3 style="margin-top:0;">Escanear código</h3>
+    <h3 style="margin-top:0;">Escanear cÃ³digo</h3>
     <div id="qr-reader" style="width:100%;"></div>
     <div style="margin-top:12px; text-align:right;">
       <button onclick="detenerScanner()" class="btn-validar" style="width:auto; background:#e74c3c;">Detener</button>
@@ -1718,11 +1718,11 @@ document.getElementById('formFiltros').addEventListener('submit', function(e){
 });
 function buscarPorCodigo(){
   const code = (document.getElementById('codigo').value || '').trim();
-  if(!code){ alert('Ingresa o escanea un código.'); return; }
+  if(!code){ alert('Ingresa o escanea un cÃ³digo.'); return; }
   const form = document.getElementById('formFiltros');
   const params = new URLSearchParams(new FormData(form));
   params.set('codigo', code);
-  params.delete('pagina'); // reinicia paginación
+  params.delete('pagina'); // reinicia paginaciÃ³n
   window.location.search = params.toString();
 }
 
@@ -1734,7 +1734,7 @@ function buscarPorCodigo(){
     modal.style.display = 'block';
 
     if (!window.Html5Qrcode) {
-      alert('No se pudo cargar el lector. Revisa tu conexión.');
+      alert('No se pudo cargar el lector. Revisa tu conexiÃ³n.');
       return;
     }
 
@@ -1745,10 +1745,10 @@ function buscarPorCodigo(){
       }
       html5QrCode = new Html5Qrcode("qr-reader");
 
-      // Elegir cámara (prioriza trasera)
+      // Elegir cÃ¡mara (prioriza trasera)
       const devices = await Html5Qrcode.getCameras();
       if (!devices || !devices.length) {
-        alert('No se encontraron cámaras.');
+        alert('No se encontraron cÃ¡maras.');
         return;
       }
       const backCam = devices.find(d => /back|rear|environment/i.test(d.label));
@@ -1764,24 +1764,24 @@ function buscarPorCodigo(){
 
       const onSuccess = (decodedText) => {
         if (scannerRunning) {
-          // Evita múltiples lecturas seguidas
+          // Evita mÃºltiples lecturas seguidas
           scannerRunning = false;
           onCodigoDetectado(decodedText);
         }
       };
 
       scannerRunning = true;
-      // Ajusta fps y tamaño de caja si quieres
+      // Ajusta fps y tamaÃ±o de caja si quieres
       await html5QrCode.start(
         camId,
         { fps: 10, formatsToSupport: formats, qrbox: { width: 280, height: 180 } },
         onSuccess,
-        (errMsg) => { /* errores de escaneo por frame: ignóralos */ }
+        (errMsg) => { /* errores de escaneo por frame: ignÃ³ralos */ }
       );
 
     } catch (e) {
       console.error(e);
-      alert('No fue posible iniciar la cámara. Recuerda usar HTTPS o localhost.');
+      alert('No fue posible iniciar la cÃ¡mara. Recuerda usar HTTPS o localhost.');
       detenerScanner();
     }
   }
@@ -1819,7 +1819,9 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
@@ -1918,3 +1920,4 @@ function cerrarNotaModal() {
 
 </html>
 <?php $conn->close(); ?>
+

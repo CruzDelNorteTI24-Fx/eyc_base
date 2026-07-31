@@ -1,10 +1,10 @@
-<?php
+﻿<?php
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
 // php\ver_movimientos_producto.php:
 if ($conn->connect_error) {
     http_response_code(500);
-    die("Conexión fallida: " . $conn->connect_error);
+    die("ConexiÃ³n fallida: " . $conn->connect_error);
 }
 
 function h($s) {
@@ -28,12 +28,12 @@ function fmt_fecha($fecha) {
 $id = intval($_GET['id'] ?? 0);
 
 if ($id <= 0) {
-    echo "<div class='movprod360 movprod360-empty'><strong>Producto inválido.</strong><span>No se recibió un ID de producto correcto.</span></div>";
+    echo "<div class='movprod360 movprod360-empty'><strong>Producto invÃ¡lido.</strong><span>No se recibiÃ³ un ID de producto correcto.</span></div>";
     $conn->close();
     exit;
 }
 
-// Obtener información del producto
+// Obtener informaciÃ³n del producto
 $info_sql = "
 SELECT 
     p.clm_alm_producto_id AS producto_id,
@@ -57,7 +57,7 @@ $info = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$info) {
-    echo "<div class='movprod360 movprod360-empty'><strong>Producto no encontrado.</strong><span>No existe información para el producto solicitado.</span></div>";
+    echo "<div class='movprod360 movprod360-empty'><strong>Producto no encontrado.</strong><span>No existe informaciÃ³n para el producto solicitado.</span></div>";
     $conn->close();
     exit;
 }
@@ -600,7 +600,7 @@ $barcode_logo = '../img/completo2.png';
 
     <div class="mp-info-grid">
       <div class="mp-info-card">
-        <div class="label"><i class="bi bi-upc-scan"></i> Código de producto</div>
+        <div class="label"><i class="bi bi-upc-scan"></i> CÃ³digo de producto</div>
         <div class="value"><span class="mp-code-pill"><?= h($info['cod_producto'] ?: ($info['codigo'] . $info['producto_id'])) ?></span></div>
       </div>
       <div class="mp-info-card">
@@ -608,7 +608,7 @@ $barcode_logo = '../img/completo2.png';
         <div class="value"><?= h($info['descodigo'] ?: '-') ?></div>
       </div>
       <div class="mp-info-card">
-        <div class="label"><i class="bi bi-collection"></i> Categoría</div>
+        <div class="label"><i class="bi bi-collection"></i> CategorÃ­a</div>
         <div class="value"><?= h($info['descategoria'] ?: $info['categoria']) ?></div>
       </div>
     </div>
@@ -632,7 +632,7 @@ $barcode_logo = '../img/completo2.png';
                 <th>Fecha</th>
                 <th>Tipo</th>
                 <th style="text-align:right;">Cantidad</th>
-                <th>Observación</th>
+                <th>ObservaciÃ³n</th>
               </tr>
             </thead>
             <tbody>
@@ -672,7 +672,7 @@ $barcode_logo = '../img/completo2.png';
                   </td>
                   <td class="mp-cantidad"><?= h(fmt_cantidad($row['cantidad_MOV'] ?? 0)) ?></td>
                   <td class="mp-obs" title="<?= h($obs) ?>">
-                    <div class="mp-obs-text"><?= h($obs !== '' ? $obs : 'Sin observación') ?></div>
+                    <div class="mp-obs-text"><?= h($obs !== '' ? $obs : 'Sin observaciÃ³n') ?></div>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -682,7 +682,7 @@ $barcode_logo = '../img/completo2.png';
       <?php else: ?>
         <div class="mp-empty">
           <strong>Este producto no tiene movimientos registrados.</strong>
-          <span>Cuando se registre una entrada, salida o inventariado, aparecerá en esta sección.</span>
+          <span>Cuando se registre una entrada, salida o inventariado, aparecerÃ¡ en esta secciÃ³n.</span>
         </div>
       <?php endif; ?>
     </div>
@@ -690,3 +690,4 @@ $barcode_logo = '../img/completo2.png';
 </div>
 
 <?php $conn->close(); ?>
+

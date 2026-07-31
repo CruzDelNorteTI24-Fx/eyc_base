@@ -100,7 +100,7 @@ if ($estadoetiq !== '') {
     $types .= 's'; $params[] = $estadoetiq;
 }
 
-// ---------- Paginación ----------
+// ---------- PaginaciÃ³n ----------
 $por_pagina = 100;
 $pagina = isset($_GET['pagina']) && is_numeric($_GET['pagina']) ? max(1, intval($_GET['pagina'])) : 1;
 $offset = ($pagina - 1) * $por_pagina;
@@ -146,7 +146,7 @@ $stmt->execute();
 $sumas = $stmt->get_result()->fetch_assoc() ?: ['cant_entradas'=>0,'cant_salidas'=>0,'cant_inventariado'=>0,'monto_entradas'=>0,'monto_salidas'=>0,'monto_inventariado'=>0];
 $stmt->close();
 
-// >>> AQUÍ, ya con $sumas poblado <<<
+// >>> AQUÃ, ya con $sumas poblado <<<
 $neto_cantidad2 = (float)($sumas['cant_inventariado'] ?? 0)
                + (float)($sumas['cant_entradas'] ?? 0)
                - (float)($sumas['cant_salidas'] ?? 0);
@@ -171,7 +171,7 @@ if (isset($_GET['export']) && $_GET['export'] == '1') {
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename=movimientos_export.csv');
     $out = fopen('php://output', 'w');
-    fputcsv($out, ['ID','Fecha','Tipo','Producto','Código','Categoría','Código Cat','Cantidad','Monto','Documento','Factura','RUC','Placa','Nota','Estado','UsuarioID','Observación']);
+    fputcsv($out, ['ID','Fecha','Tipo','Producto','CÃ³digo','CategorÃ­a','CÃ³digo Cat','Cantidad','Monto','Documento','Factura','RUC','Placa','Nota','Estado','UsuarioID','ObservaciÃ³n']);
     $exp_sql = "
         SELECT 
             m.clm_alm_mov_id, m.clm_alm_mov_fecha_registro, m.clm_alm_mov_TIPO,
@@ -260,7 +260,7 @@ $stmt->execute();
 $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
-// Categorías para el filtro
+// CategorÃ­as para el filtro
 $cat_rs = $conn->query("SELECT clm_alm_categoria_id AS id, clm_alm_categoria_NOMBRE AS nombre FROM tb_alm_categoria ORDER BY nombre");
 
 
@@ -274,14 +274,14 @@ $cat_rs = $conn->query("SELECT clm_alm_categoria_id AS id, clm_alm_categoria_NOM
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Visualización de Movimientos | Eyc°</title>
+    <title>VisualizaciÃ³n de Movimientos | EycÂ°</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="../img/eyc.png">    
     <!-- Bootstrap 5 CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">    
-    <!-- Lector de códigos (QR/Code128/EAN/Code39, etc.) -->
+    <!-- Lector de cÃ³digos (QR/Code128/EAN/Code39, etc.) -->
     <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
@@ -455,7 +455,7 @@ hr {
     width: 80%;
     border-radius: 4px;
 }
-/* BOTÓN FLOTANTE DE SOPORTE */
+/* BOTÃ“N FLOTANTE DE SOPORTE */
 .btn-flotante {
     position: fixed;
     bottom: 25px;
@@ -987,7 +987,7 @@ margin: 20px
   box-shadow: 4px 0 12px rgba(0,0,0,0.06);
   box-sizing: border-box;
   z-index: 900;
-  overflow-y: auto; /* Para que el menú lateral pueda hacer scroll interno si hay muchos elementos */
+  overflow-y: auto; /* Para que el menÃº lateral pueda hacer scroll interno si hay muchos elementos */
   transition: transform .3s ease;
 }
 
@@ -1048,7 +1048,7 @@ margin: 20px
 
 /* ---------- Escritorio ---------- */
 @media (min-width: 992px) {
-  /* Botón para ocultar (dentro del menú) */
+  /* BotÃ³n para ocultar (dentro del menÃº) */
   .sidebar-toggle-btn {
     position: absolute;
     top: 10px;
@@ -1067,10 +1067,10 @@ margin: 20px
   }
   .sidebar-toggle-btn:hover { background: #dbe7f6; }
 
-  /* Botón para mostrar (fuera, flotante en el borde izquierdo) */
+  /* BotÃ³n para mostrar (fuera, flotante en el borde izquierdo) */
   .sidebar-show-btn {
     position: fixed;
-    top: 160px;           /* ajústalo si tu header es más alto/bajo */
+    top: 160px;           /* ajÃºstalo si tu header es mÃ¡s alto/bajo */
     left: 10px;
     border: 0;
     background: #e9eef5;
@@ -1103,7 +1103,7 @@ margin: 20px
   }
 }
 
-/* ---------- Móvil/Tablet: no mostrar botón flotante de escritorio ---------- */
+/* ---------- MÃ³vil/Tablet: no mostrar botÃ³n flotante de escritorio ---------- */
 @media (max-width: 991px) {
   .sidebar-toggle-btn,
   .sidebar-show-btn { display: none !important; }
@@ -1112,15 +1112,15 @@ margin: 20px
 
 
 
-/* Responsive en móviles */
+/* Responsive en mÃ³viles */
 @media (max-width: 768px) {
   .menu-lateral {
-    position: fixed; /* Mejor experiencia móvil */
+    position: fixed; /* Mejor experiencia mÃ³vil */
     top: 0;
     left: 0;
     width: 250px;
     height: 100%;
-    background: #fff; /* O el color de tu menú */
+    background: #fff; /* O el color de tu menÃº */
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
@@ -1155,13 +1155,13 @@ margin: 20px
   .menu-toggle span {
     width: 100%;
     height: 3px;
-    background-color: #333; /* Cambia según tu paleta */
+    background-color: #333; /* Cambia segÃºn tu paleta */
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
     transform-origin: 1px;
   }
 
-  /* ANIMACIÓN AL ACTIVAR (hamburger a X) */
+  /* ANIMACIÃ“N AL ACTIVAR (hamburger a X) */
   .menu-toggle.active span:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
   }
@@ -1200,13 +1200,13 @@ margin: 20px
   .menu-toggle span {
     width: 100%;
     height: 3px;
-    background-color: #333; /* Cambia según tu paleta */
+    background-color: #333; /* Cambia segÃºn tu paleta */
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
     transform-origin: 1px;
   }
 
-  /* ANIMACIÓN AL ACTIVAR (hamburger a X) */
+  /* ANIMACIÃ“N AL ACTIVAR (hamburger a X) */
   .menu-toggle.active span:nth-child(1) {
     transform: rotate(45deg) translate(5px, 5px);
   }
@@ -1395,7 +1395,7 @@ margin: 20px
 .kpi-card .meta .value{ font-weight:800; font-size:1.35rem; line-height:1.2; }
 .kpi-card .meta .sub{ font-size:.8rem; opacity:.85; margin-top:2px; }
 
-/* variantes color sutiles (borde/ícono) */
+/* variantes color sutiles (borde/Ã­cono) */
 .kpi-total   { border-color:#334155; }
 .kpi-in      { border-color:#16a34a; }
 .kpi-out     { border-color:#dc2626; }
@@ -1409,8 +1409,8 @@ margin: 20px
 
 
 /* =========================================================
-   REDISEÑO GERENCIAL - MOVIMIENTOS DE ALMACÉN
-   Mantiene lógica PHP actual; solo mejora lectura, orden y jerarquía visual.
+   REDISEÃ‘O GERENCIAL - MOVIMIENTOS DE ALMACÃ‰N
+   Mantiene lÃ³gica PHP actual; solo mejora lectura, orden y jerarquÃ­a visual.
    ========================================================= */
 :root{
   --eyc-bg:#eef3f8;
@@ -1486,7 +1486,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
   border-collapse:separate!important;
   border-spacing:0!important;
 }
-/* ==== ANCHOS PRO PARA TABLA SIN DOCUMENTO / FACTURA / RUC / CÓDIGO CAT ==== */
+/* ==== ANCHOS PRO PARA TABLA SIN DOCUMENTO / FACTURA / RUC / CÃ“DIGO CAT ==== */
 .mov-table{
   min-width:1380px!important;
   width:100%;
@@ -1527,11 +1527,11 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
 .mov-table th:nth-child(4),
 .mov-table td:nth-child(4){ width:200px; }
 
-/* Código */
+/* CÃ³digo */
 .mov-table th:nth-child(5),
 .mov-table td:nth-child(5){ width:105px; }
 
-/* Categoría completa */
+/* CategorÃ­a completa */
 .mov-table th:nth-child(6),
 .mov-table td:nth-child(6){ width:100px; }
 
@@ -1555,7 +1555,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
 .mov-table th:nth-child(11),
 .mov-table td:nth-child(11){ width:110px; }
 
-/* Observación */
+/* ObservaciÃ³n */
 .mov-table th:nth-child(12),
 .mov-table td:nth-child(12){ width:220px; }
 
@@ -1622,7 +1622,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
 @media(max-width:680px){.mov-hero-right{grid-template-columns:1fr}.filters-toolbar .input-icon{grid-column:span 12}.kpis-pro{grid-template-columns:1fr!important}.table-head-pro{align-items:flex-start;flex-direction:column}.table-wrap{max-height:none}.mov-hero{padding:18px}.main-content{padding:14px;}}
 @media print{.main-header,.nav-bar-pro,.menu-lateral,.sidebar-show-btn,.menu-toggle,.actionbar,.filters-toolbar,.slide-ctrl,.btn-flotante,.main-footer{display:none!important}.main-content{margin-left:0!important;padding:0!important}.mov-hero{box-shadow:none!important;color:#0f172a!important;background:#fff!important;border:1px solid #dbe4ef}.mov-hero p,.mov-eyebrow,.hero-metric span{color:#334155!important}.hero-metric strong{color:#0f172a!important}.table-wrap{max-height:none!important;overflow:visible!important}.mov-table{min-width:100%!important}.mov-table th{background:#172033!important;color:#fff!important}}
 /* =========================================================
-   MODAL NOTA DE ALMACÉN ENCIMA DEL DRAWER
+   MODAL NOTA DE ALMACÃ‰N ENCIMA DEL DRAWER
    ========================================================= */
 #modal-nota{
   z-index:1000005!important;
@@ -1704,9 +1704,9 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
 
   <section class="mov-hero">
     <div class="mov-hero-left">
-      <div class="mov-eyebrow"><i class="bi bi-box-seam"></i> Almacén · Control de inventario</div>
-      <h1>Movimientos de Almacén</h1>
-      <p>Panel de entradas, salidas e inventariados con lectura rápida para supervisión y gerencia.</p>
+      <div class="mov-eyebrow"><i class="bi bi-box-seam"></i> AlmacÃ©n Â· Control de inventario</div>
+      <h1>Movimientos de AlmacÃ©n</h1>
+      <p>Panel de entradas, salidas e inventariados con lectura rÃ¡pida para supervisiÃ³n y gerencia.</p>
     </div>
 
     <?php if ($isAdmin): ?>
@@ -1760,11 +1760,11 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
       <input type="date" id="hasta" name="hasta" value="<?=$hasta?>" class="form-control" placeholder="Hasta">
     </div>
 
-    <!-- Categoría -->
+    <!-- CategorÃ­a -->
     <div class="input-icon">
       <i class="bi bi-collection"></i>
-      <select name="categoria_id" class="form-select" aria-label="Categoría">
-        <option value="0">Categoría (Todas)</option>
+      <select name="categoria_id" class="form-select" aria-label="CategorÃ­a">
+        <option value="0">CategorÃ­a (Todas)</option>
         <?php while($c = $cat_rs->fetch_assoc()): ?>
           <option value="<?=$c['id']?>" <?= $categoria_id==intval($c['id'])?'selected':''; ?>>
             <?=h($c['nombre'])?>
@@ -1773,10 +1773,10 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
       </select>
     </div>
 
-    <!-- Búsqueda libre -->
+    <!-- BÃºsqueda libre -->
     <div class="input-icon">
       <i class="bi bi-search"></i>
-      <input type="text" name="buscar" value="<?=$buscar?>" class="form-control" placeholder="Producto, código o grupo">
+      <input type="text" name="buscar" value="<?=$buscar?>" class="form-control" placeholder="Producto, cÃ³digo o grupo">
     </div>
 
     <!-- Tipo (segmentado) -->
@@ -1807,12 +1807,12 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
       <input type="text" name="estadoetiq" value="<?=$estadoetiq?>" class="form-control" placeholder="Estado etiqueta">
     </div>
 
-    <!-- Rango rápido -->
+    <!-- Rango rÃ¡pido -->
     <div class="quick span-3">
       <span class="chip" onclick="setQuickRange('today')">Hoy</span>
-      <span class="chip" onclick="setQuickRange('7d')">Últimos 7 días</span>
-      <span class="chip" onclick="setQuickRange('30d')">Últimos 30 días</span>
-      <span class="chip" onclick="setQuickRange('ytd')">Año actual</span>
+      <span class="chip" onclick="setQuickRange('7d')">Ãšltimos 7 dÃ­as</span>
+      <span class="chip" onclick="setQuickRange('30d')">Ãšltimos 30 dÃ­as</span>
+      <span class="chip" onclick="setQuickRange('ytd')">AÃ±o actual</span>
       <span class="chip" onclick="clearDates()">Sin fechas</span>
     </div>
   </div>
@@ -1861,7 +1861,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
     <?php endif; ?>
     <?php if(!empty($desde) || !empty($hasta)): ?>
       <span class="stat-pill"><i class="bi bi-calendar-range"></i>
-        Rango: <?= $desde ?: '…' ?> → <?= $hasta ?: '…' ?>
+        Rango: <?= $desde ?: 'â€¦' ?> â†’ <?= $hasta ?: 'â€¦' ?>
       </span>
     <?php endif; ?>
   </div>
@@ -1926,7 +1926,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
     <div class="value kpi-value" data-val="<?= (float)$neto_cantidad2 ?>">
       <?= number_format($neto_cantidad2, 2) ?>
     </div>
-    <div class="sub">Neto = Inv + Entr − Sal · S/ <?= number_format($neto_monto, 2) ?></div>
+    <div class="sub">Neto = Inv + Entr âˆ’ Sal Â· S/ <?= number_format($neto_monto, 2) ?></div>
   </div>
 </div>
 
@@ -1942,9 +1942,9 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
         <div class="table-head-pro">
           <div>
             <h3><i class="bi bi-list-check"></i> Detalle de movimientos</h3>
-            <p>Vista operativa con trazabilidad de producto, unidad, usuario y observación.</p>
+            <p>Vista operativa con trazabilidad de producto, unidad, usuario y observaciÃ³n.</p>
           </div>
-          <div class="table-head-count">Página <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></div>
+          <div class="table-head-count">PÃ¡gina <?= number_format($pagina) ?> / <?= number_format($total_paginas) ?></div>
         </div>
         <!-- Tabla con deslizamiento -->
         <div class="table-shell">
@@ -1957,14 +1957,14 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
                             <th>Fecha</th>
                             <th>Tipo</th>
                             <th>Producto</th>
-                            <th>Código</th>
-                            <th>Categoría</th>
+                            <th>CÃ³digo</th>
+                            <th>CategorÃ­a</th>
                             <th class="text-end">Cantidad</th>
                             <th>Placa</th>
                             <th>Nota</th>
                             <th>Estado</th>
                             <th>Usuario</th>
-                            <th>Observación</th>
+                            <th>ObservaciÃ³n</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -2015,7 +2015,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
                                         <i class="bi bi-file-earmark-text"></i> Ver Nota
                                     </button>
                                 <?php else: ?>
-                                    <span class="no-action">—</span>
+                                    <span class="no-action">â€”</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -2026,7 +2026,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
             <button type="button" class="slide-ctrl slide-right" onclick="scrollTbl(1)" title="Deslizar derecha"><i class="bi bi-chevron-right"></i></button>
         </div>
 
-        <!-- Paginación -->
+        <!-- PaginaciÃ³n -->
         <div class="pagination">
             <?php
             // Rango compacto
@@ -2041,7 +2041,7 @@ body.sidebar-collapsed .main-content{margin-left:0!important;}
                         echo '<a href="?'. h(http_build_query($q)) .'">'. $i .'</a>';
                     }
                 } else if ($i==2 && $pagina>4 || $i==$total_paginas-1 && $pagina < $total_paginas-3){
-                    echo '<span class="muted">…</span>';
+                    echo '<span class="muted">â€¦</span>';
                 }
             }
             ?>
@@ -2097,7 +2097,9 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/formatos/plantillas/eyc_pdf_a4.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_notas_common.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_salida_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_almacen.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_entrada_bienes.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
@@ -2276,7 +2278,7 @@ async function exportarPDFMovimientos() {
   const getVal = (sel) => (document.querySelector(sel)?.value ?? '').trim();
   const trunc = (s, n=90) => {
     s = (s ?? '').toString().trim();
-    return s.length > n ? s.slice(0, n-1) + '…' : s;
+    return s.length > n ? s.slice(0, n-1) + 'â€¦' : s;
   };
 
   const fmtTipo = (t) => {
@@ -2319,7 +2321,7 @@ async function exportarPDFMovimientos() {
     return arr;
   })();
 
-  // ========= Data: página o completo =========
+  // ========= Data: pÃ¡gina o completo =========
   const rows = [];
 
   document.querySelectorAll('table tbody tr').forEach(tr => {
@@ -2354,7 +2356,7 @@ async function exportarPDFMovimientos() {
   const pageH = doc.internal.pageSize.getHeight();  // ~595
   const marginX = 36;
 
-  // TIPOGRAFÍA UNIFICADA (y sin spacing raro)
+  // TIPOGRAFÃA UNIFICADA (y sin spacing raro)
   doc.setFont('helvetica', 'normal');
   if (doc.setCharSpace) doc.setCharSpace(0);
 
@@ -2379,7 +2381,7 @@ async function exportarPDFMovimientos() {
 
   const userName = (document.querySelector('.usuario-barra span')?.textContent ?? '').replace('Hola,', '').trim();
 
-  // ========= Layout fijo para TODAS las páginas =========
+  // ========= Layout fijo para TODAS las pÃ¡ginas =========
   const TABLE_TOP = 200; // margen superior real de la tabla (evita que pise filtros/KPIs)
 
   const drawHeader = () => {
@@ -2397,7 +2399,7 @@ async function exportarPDFMovimientos() {
     doc.setTextColor(255,255,255);
     doc.setFont('helvetica','bold');
     doc.setFontSize(14);
-    doc.text('Eyc° — Reporte de Movimientos', marginX + 42, 32);
+    doc.text('EycÂ° â€” Reporte de Movimientos', marginX + 42, 32);
 
     doc.setFont('helvetica','normal');
     doc.setFontSize(9);
@@ -2416,18 +2418,18 @@ async function exportarPDFMovimientos() {
     const col3 = boxW / 3;
     const col4 = boxW / 4;
 
-    const vRango = `${filtros.desde || '…'} → ${filtros.hasta || '…'}`;
+    const vRango = `${filtros.desde || 'â€¦'} â†’ ${filtros.hasta || 'â€¦'}`;
     const vTipo  = filtros.tipo || 'Todos';
     const vCat   = filtros.categoria || 'Todas';
-    const vBus   = filtros.buscar || '—';
-    const vPlaca = filtros.placa || '—';
-    const vEst   = filtros.estadoetiq || '—';
+    const vBus   = filtros.buscar || 'â€”';
+    const vPlaca = filtros.placa || 'â€”';
+    const vEst   = filtros.estadoetiq || 'â€”';
     const vModo  = 'Tabla actual';
 
     doc.setTextColor(...C_TEXT);
     doc.setFontSize(9);
 
-    // ✅ DECLARAR ANTES DE USAR
+    // âœ… DECLARAR ANTES DE USAR
     const writePair = (x, y, label, value, maxChars) => {
       doc.setFont('helvetica','bold');  doc.text(label, x, y);
       doc.setFont('helvetica','normal'); doc.text(trunc(value, maxChars), x + doc.getTextWidth(label) + 4, y);
@@ -2435,7 +2437,7 @@ async function exportarPDFMovimientos() {
 
     writePair(boxX + 12,           boxY + 20, 'Rango:', vRango, 30);
     writePair(boxX + 12 + col3,    boxY + 20, 'Tipo:',  vTipo,  18);
-    writePair(boxX + 12 + col3*2,  boxY + 20, 'Categoría:', vCat, 22);
+    writePair(boxX + 12 + col3*2,  boxY + 20, 'CategorÃ­a:', vCat, 22);
 
     writePair(boxX + 12,            boxY + 40, 'Buscar:', vBus,   26);
     writePair(boxX + 12 + col4,     boxY + 40, 'Placa:',  vPlaca, 14);
@@ -2509,22 +2511,22 @@ async function exportarPDFMovimientos() {
     doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
 
-    doc.text('Eyc° · Inventario · Movimientos', marginX, pageH - 14);
-    doc.text(`Página ${pageNumber} de ${totalPagesExp}`, pageW - marginX, pageH - 14, { align: 'right' });
+    doc.text('EycÂ° Â· Inventario Â· Movimientos', marginX, pageH - 14);
+    doc.text(`PÃ¡gina ${pageNumber} de ${totalPagesExp}`, pageW - marginX, pageH - 14, { align: 'right' });
   };
 
   // ========= Tabla (PLACA y NOTA separadas) =========
   const head = [[
-    'ID','Fecha','Tipo','Producto','Categoría','Cant.','Placa','Nota','Estado','Obs.'
+    'ID','Fecha','Tipo','Producto','CategorÃ­a','Cant.','Placa','Nota','Estado','Obs.'
 
   ]];
 
   const body = rows.map(r => {
-    const placa = (r.placa_label ?? '').toString().trim() || '—';
-    const nota  = (r.nota_label ?? '').toString().trim() || '—';
+    const placa = (r.placa_label ?? '').toString().trim() || 'â€”';
+    const nota  = (r.nota_label ?? '').toString().trim() || 'â€”';
     const prod = `${trunc(r.cod_prod ?? '', 14)}\n${trunc(r.producto ?? '', 34)}`;
     const cat  = trunc(r.categoria ?? '', 55);
-    const estado = (r.estadoetiq_label ?? '').toString().trim() || '—';
+    const estado = (r.estadoetiq_label ?? '').toString().trim() || 'â€”';
 
     return [
       r.clm_alm_mov_id ?? '',
@@ -2544,7 +2546,7 @@ async function exportarPDFMovimientos() {
     head,
     body,
 
-    // IMPORTANTÍSIMO: esto evita que la tabla se meta en header/KPIs
+    // IMPORTANTÃSIMO: esto evita que la tabla se meta en header/KPIs
     startY: TABLE_TOP,
     margin: { left: marginX, right: marginX, top: TABLE_TOP, bottom: 40 },
 
@@ -2568,13 +2570,13 @@ async function exportarPDFMovimientos() {
     },
     alternateRowStyles: { fillColor: [248, 250, 252] },
 
-    // ANCHOS CUADRADOS (suman el ancho útil, no se deforma)
+    // ANCHOS CUADRADOS (suman el ancho Ãºtil, no se deforma)
     columnStyles: {
       0: { cellWidth: 32 },                 // ID
       1: { cellWidth: 60 },                 // Fecha
       2: { cellWidth: 36, halign:'center' },// Tipo
       3: { cellWidth: 150 },                // Producto
-      4: { cellWidth: 115 },                // Categoría
+      4: { cellWidth: 115 },                // CategorÃ­a
       5: { cellWidth: 48, halign:'right' }, // Cant.
       6: { cellWidth: 70 },                 // Placa
       7: { cellWidth: 46 },                 // Nota
@@ -2588,7 +2590,7 @@ async function exportarPDFMovimientos() {
       drawKpis();
     },
 
-    // Footer DESPUÉS
+    // Footer DESPUÃ‰S
     didDrawPage: function () {
       drawFooter();
     },
@@ -2631,3 +2633,4 @@ async function exportarPDFMovimientos() {
 
 </html>
 <?php $conn->close(); ?>
+

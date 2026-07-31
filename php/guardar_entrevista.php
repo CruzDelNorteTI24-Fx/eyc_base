@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 define('ACCESS_GRANTED', true);
 require_once("../.c0nn3ct/db_secure.php");
 
-// 🔐 Iniciar sesión para acceder al token guardado
+// ðŸ” Iniciar sesiÃ³n para acceder al token guardado
 session_start();
 
-// 🛡 Validación CSRF
+// ðŸ›¡ ValidaciÃ³n CSRF
 if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
     http_response_code(403);
     die("CSRF detectado. Solicitud rechazada.");
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         if (filesize($_FILES['cv_pdf']['tmp_name']) == 0) {
-            die("Error: archivo vacío.");
+            die("Error: archivo vacÃ­o.");
         }
 
         $cv_binario = file_get_contents($_FILES['cv_pdf']['tmp_name']);
@@ -61,3 +61,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
 }
+
