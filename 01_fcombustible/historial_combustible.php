@@ -8,6 +8,18 @@ function comb_h($value): string
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
+function comb_hist_json(array $payload, int $status = 200): void
+{
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+    http_response_code($status);
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 function comb_can_modulo(int $moduloId): bool
 {
     if (($_SESSION['web_rol'] ?? '') === 'Admin') {
@@ -61,8 +73,25 @@ function comb_fetch_all(mysqli $conn, string $sql, string $types = '', array $pa
 
 function comb_valid_date($value, string $fallback): string
 {
+    if (!is_string($value) || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $value)) {
+        return $fallback;
+    }
     $date = DateTime::createFromFormat('Y-m-d', (string)$value);
     return ($date && $date->format('Y-m-d') === (string)$value) ? (string)$value : $fallback;
+}
+
+function comb_period_label(string $desde, string $hasta): string
+{
+    if ($desde !== '' && $hasta !== '') {
+        return date('d/m/Y', strtotime($desde)) . ' al ' . date('d/m/Y', strtotime($hasta));
+    }
+    if ($desde !== '') {
+        return 'Desde ' . date('d/m/Y', strtotime($desde));
+    }
+    if ($hasta !== '') {
+        return 'Hasta ' . date('d/m/Y', strtotime($hasta));
+    }
+    return 'Sin límite de fechas';
 }
 
 function comb_fmt_qty($value): string
@@ -129,6 +158,48 @@ function comb_text($value, string $fallback = '-'): string
     return $text !== '' ? $text : $fallback;
 }
 
+function comb_observacion_html($value): string
+{
+    $text = comb_text($value);
+    $parts = preg_split(
+        '/((?<![\p{L}\p{N}_])(?:DEVOLUCI[OÓ]N|VDC-[0-9]+)(?![\p{L}\p{N}_]))/iu',
+        $text,
+        -1,
+        PREG_SPLIT_DELIM_CAPTURE
+    );
+    if ($parts === false) {
+        return comb_h($text);
+    }
+
+    $html = '';
+    foreach ($parts as $index => $part) {
+        $escaped = comb_h($part);
+        if ($index % 2 === 0) {
+            $html .= $escaped;
+            continue;
+        }
+        $class = strncasecmp($part, 'VDC-', 4) === 0 ? 'comb-observation-code' : 'comb-observation-return';
+        $html .= '<strong class="' . $class . '">' . $escaped . '</strong>';
+    }
+    return preg_replace(
+        '/([ \t]*\|[ \t]*PU[ \t]+adicional[ \t]*:[^|\r\n]*)/iu',
+        '<span data-comb-additional-price>$1</span>',
+        $html
+    ) ?? $html;
+}
+
+function comb_observacion_clasificacion($value): array
+{
+    $text = (string)($value ?? '');
+    if (preg_match('/(?<![\p{L}\p{N}_])DEVOLUCI[OÓ]N(?![\p{L}\p{N}_])/iu', $text) === 1) {
+        return ['label' => 'DEVOLUCIÓN', 'class' => 'devolucion'];
+    }
+    if (preg_match('/(?<![\p{L}\p{N}_])NO\s+(?:HAY|EST[ÁA])(?![\p{L}\p{N}_])/iu', $text) === 1) {
+        return ['label' => 'NO HAY SIGUIENTE CORRELATIVO', 'class' => 'sin-correlativo'];
+    }
+    return ['label' => 'CORRECTO', 'class' => 'correcto'];
+}
+
 function comb_vehicle_label($bus, $placa): string
 {
     $bus = trim((string)($bus ?? ''));
@@ -191,32 +262,106 @@ function comb_hist_products(array $rows): array
     return array_values($products);
 }
 
+$isPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
 if (!isset($_SESSION['usuario'])) {
+    if ($isPost) {
+        comb_hist_json(['ok' => false, 'message' => 'La sesión ha vencido. Vuelve a iniciar sesión.'], 401);
+    }
     header('Location: ../login/login.php');
     exit;
 }
 
 if (!comb_can_modulo(9)) {
+    if ($isPost) {
+        comb_hist_json(['ok' => false, 'message' => 'No tienes acceso al historial de combustible.'], 403);
+    }
     header('Location: ../login/none_permisos.php?vista=' . urlencode('Historial de combustible'));
     exit;
+}
+
+$canAddEmision = ($_SESSION['web_rol'] ?? '') === 'Admin';
+if ($isPost) {
+    if (!$canAddEmision) {
+        comb_hist_json(['ok' => false, 'message' => 'Solo un administrador puede agregar la fecha de emisión.'], 403);
+    }
+    if (($_POST['action'] ?? '') !== 'guardar_fecha_emision') {
+        comb_hist_json(['ok' => false, 'message' => 'Operación no válida.'], 400);
+    }
+    $csrfExpected = $_SESSION['comb_hist_emision_csrf'] ?? '';
+    $csrfReceived = $_POST['csrf'] ?? '';
+    if (!is_string($csrfExpected) || $csrfExpected === '' || !is_string($csrfReceived)
+        || !hash_equals($csrfExpected, $csrfReceived)) {
+        comb_hist_json(['ok' => false, 'message' => 'La validación de seguridad venció. Actualiza la página.'], 403);
+    }
+    $emisionId = filter_var($_POST['id_mov'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    $emisionFecha = comb_valid_date($_POST['fecha_emision'] ?? '', '');
+    if ($emisionId === false || $emisionFecha === '' || $emisionFecha < '1000-01-01') {
+        comb_hist_json(['ok' => false, 'message' => 'Selecciona un movimiento y una fecha de emisión válidos.'], 422);
+    }
+} elseif ($canAddEmision && empty($_SESSION['comb_hist_emision_csrf'])) {
+    $_SESSION['comb_hist_emision_csrf'] = bin2hex(random_bytes(32));
 }
 
 define('ACCESS_GRANTED', true);
 require_once __DIR__ . '/../.c0nn3ct/db_secure.php';
 
 if (!isset($conn) || !($conn instanceof mysqli) || $conn->connect_error) {
+    if ($isPost) {
+        comb_hist_json(['ok' => false, 'message' => 'No se pudo conectar para guardar la fecha.'], 503);
+    }
     die('No se pudo conectar a la base de datos.');
 }
 
 $conn->set_charset('utf8mb4');
 $conn->query("SET collation_connection = 'utf8mb4_unicode_ci'");
 
+if ($isPost) {
+    try {
+        $stmt = $conn->prepare(
+            "UPDATE tb_alm_movimientos m
+             INNER JOIN tb_alm_producto p ON p.clm_alm_producto_id = m.clm_alm_mov_idPRODUCTO
+             SET m.clm_alm_mov_fecha_emision = ?
+             WHERE m.clm_alm_mov_id = ?
+               AND m.clm_alm_mov_fecha_emision IS NULL
+               AND p.clm_alm_producto_idCATEGORIA = 11"
+        );
+        if (!$stmt) {
+            throw new RuntimeException('No se pudo preparar el guardado.');
+        }
+        $stmt->bind_param('si', $emisionFecha, $emisionId);
+        if (!$stmt->execute()) {
+            $stmt->close();
+            throw new RuntimeException('No se pudo ejecutar el guardado.');
+        }
+        $updated = $stmt->affected_rows;
+        $stmt->close();
+        if ($updated !== 1) {
+            comb_hist_json(['ok' => false, 'message' => 'El movimiento ya tiene fecha de emisión o no está disponible. Actualiza el historial.'], 409);
+        }
+        comb_hist_json([
+            'ok' => true,
+            'id_mov' => $emisionId,
+            'fecha_emision' => $emisionFecha,
+            'fecha_display' => date('d/m/Y', strtotime($emisionFecha)),
+        ]);
+    } catch (Throwable $e) {
+        error_log('No se pudo guardar la fecha de emisión del movimiento ' . $emisionId);
+        comb_hist_json(['ok' => false, 'message' => 'No se pudo guardar la fecha de emisión. Inténtalo nuevamente.'], 500);
+    }
+}
+
 $today = date('Y-m-d');
 $defaultDesde = date('Y-01-01');
-$desde = comb_valid_date($_GET['desde'] ?? $defaultDesde, $defaultDesde);
-$hasta = comb_valid_date($_GET['hasta'] ?? $today, $today);
-if ($desde > $hasta) {
+$desde = ($_GET['desde'] ?? null) === '' ? '' : comb_valid_date($_GET['desde'] ?? $defaultDesde, $defaultDesde);
+$hasta = ($_GET['hasta'] ?? null) === '' ? '' : comb_valid_date($_GET['hasta'] ?? $today, $today);
+if ($desde !== '' && $hasta !== '' && $desde > $hasta) {
     [$desde, $hasta] = [$hasta, $desde];
+}
+
+$desdeEmision = comb_valid_date($_GET['desde_emision'] ?? '', '');
+$hastaEmision = comb_valid_date($_GET['hasta_emision'] ?? '', '');
+if ($desdeEmision !== '' && $hastaEmision !== '' && $desdeEmision > $hastaEmision) {
+    [$desdeEmision, $hastaEmision] = [$hastaEmision, $desdeEmision];
 }
 
 $tipo = strtoupper(trim((string)($_GET['tipo'] ?? 'TODOS')));
@@ -341,13 +486,30 @@ try {
     } catch (Throwable $e) {
         $histPromedios = [];
     }
-    $where = [
-        'p.clm_alm_producto_idCATEGORIA = 11',
-        'm.clm_alm_mov_fecha_registro >= ?',
-        'm.clm_alm_mov_fecha_registro <= ?',
-    ];
-    $types = 'ss';
-    $params = [$desde . ' 00:00:00', $hasta . ' 23:59:59'];
+    $where = ['p.clm_alm_producto_idCATEGORIA = 11'];
+    $types = '';
+    $params = [];
+
+    if ($desde !== '') {
+        $where[] = 'm.clm_alm_mov_fecha_registro >= ?';
+        $types .= 's';
+        $params[] = $desde . ' 00:00:00';
+    }
+    if ($hasta !== '') {
+        $where[] = 'm.clm_alm_mov_fecha_registro <= ?';
+        $types .= 's';
+        $params[] = $hasta . ' 23:59:59';
+    }
+    if ($desdeEmision !== '') {
+        $where[] = 'm.clm_alm_mov_fecha_emision >= ?';
+        $types .= 's';
+        $params[] = $desdeEmision;
+    }
+    if ($hastaEmision !== '') {
+        $where[] = 'm.clm_alm_mov_fecha_emision <= ?';
+        $types .= 's';
+        $params[] = $hastaEmision;
+    }
 
     if ($tipo !== 'TODOS') {
         $where[] = "UPPER(TRIM(CAST(m.clm_alm_mov_TIPO AS CHAR))) = ?";
@@ -409,6 +571,7 @@ try {
     $sql = "SELECT
             m.clm_alm_mov_id AS id_mov,
             m.clm_alm_mov_fecha_registro AS fecha,
+            m.clm_alm_mov_fecha_emision AS fecha_emision,
             UPPER(TRIM(CAST(m.clm_alm_mov_TIPO AS CHAR))) AS tipo,
             COALESCE(NULLIF(ns.clm_nota_sco, ''), '-') AS nota,
             CONCAT('(', COALESCE(e.clm_esp_nombre, '-'), ') ', COALESCE(e.clm_esp_desc, '')) AS grifo,
@@ -418,6 +581,7 @@ try {
             p.clm_alm_producto_id AS id_producto,
             COALESCE(NULLIF(TRIM(pl.clm_placas_BUS), ''), '') AS bus,
             COALESCE(NULLIF(TRIM(pl.clm_placas_PLACA), ''), NULLIF(TRIM(m.clm_alm_mov_placa), ''), '') AS placa,
+            COALESCE(NULLIF(TRIM(pl.`clm_placas_DUEÑO`), ''), '') AS dueno,
             COALESCE(m.clm_alm_mov_cantidad, 0) AS cantidad,
             CASE
                 WHEN COALESCE(m.clm_alm_mov_cantidad, 0) > 0 THEN COALESCE(m.clm_alm_mov_monto, 0) / m.clm_alm_mov_cantidad
@@ -495,7 +659,8 @@ foreach ($productos as $p) {
 $tipoLabel = $tipo === 'TODOS' ? 'Todos los tipos' : comb_tipo_label($tipo);
 $grupoLabel = $grupo === 'TODOS' ? 'Todos los grupos' : $grupo;
 $placaLabel = $placa === '' ? 'Todas las placas' : $placa;
-$periodoLabel = date('d/m/Y', strtotime($desde)) . ' al ' . date('d/m/Y', strtotime($hasta));
+$periodoLabel = 'Registro: ' . comb_period_label($desde, $hasta);
+$emisionLabel = 'Emisión: ' . comb_period_label($desdeEmision, $hastaEmision);
 
 define('eyc_LAYOUT', true);
 define('eyc_BASE_URL', '../');
@@ -519,7 +684,7 @@ require_once __DIR__ . '/../layout/content_eyc.php';
     <link rel="stylesheet" href="<?= eyc_asset('assets/css/footer_eyc.css') ?>">
     <link rel="stylesheet" href="<?= eyc_asset('assets/css/content_eyc.css') ?>">
     <link rel="stylesheet" href="<?= eyc_asset('assets/css/inventario_stock_eyc.css') ?>">
-    <link rel="stylesheet" href="<?= eyc_asset('assets/css/combustible_historial_eyc.css') ?>">
+    <link rel="stylesheet" href="<?= eyc_asset('assets/css/combustible_historial_eyc.css?emision=2&observacion=2&duenos=1&clasificacion=1') ?>">
 </head>
 <body>
 <?php eyc_render_sidebar(); ?>
@@ -597,12 +762,20 @@ require_once __DIR__ . '/../layout/content_eyc.php';
 
         <form class="stock-filters stock-filters--history comb-filters" method="GET" autocomplete="off">
             <label class="stock-field">
-                <span>Desde</span>
+                <span>Registro desde</span>
                 <input type="date" name="desde" value="<?= comb_h($desde) ?>">
             </label>
             <label class="stock-field">
-                <span>Hasta</span>
+                <span>Registro hasta</span>
                 <input type="date" name="hasta" value="<?= comb_h($hasta) ?>">
+            </label>
+            <label class="stock-field">
+                <span>Emisión desde</span>
+                <input type="date" name="desde_emision" value="<?= comb_h($desdeEmision) ?>">
+            </label>
+            <label class="stock-field">
+                <span>Emisión hasta</span>
+                <input type="date" name="hasta_emision" value="<?= comb_h($hastaEmision) ?>">
             </label>
             <label class="stock-field">
                 <span>Tipo</span>
@@ -666,6 +839,20 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                 <div>
                     <h2>Bitacora de movimientos</h2>
                     <p>Columnas operativas equivalentes al historial de combustible del sistema de escritorio.</p>
+                    <div class="comb-table-options">
+                        <label class="comb-additional-price-toggle">
+                            <input type="checkbox" data-comb-hide-additional-price autocomplete="off">
+                            <span>Ocultar precio adicional</span>
+                        </label>
+                        <label class="comb-owner-toggle">
+                            <input type="checkbox" data-comb-show-owners autocomplete="off">
+                            <span>Mostrar dueños de placas</span>
+                        </label>
+                        <label class="comb-classification-toggle">
+                            <input type="checkbox" data-comb-show-classification autocomplete="off">
+                            <span>Mostrar clasificación</span>
+                        </label>
+                    </div>
                 </div>
                 <span class="stock-pill" data-combustible-visible-pill><?= number_format($kpis['movimientos']) ?> registros</span>
             </header>
@@ -682,16 +869,19 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                             <th>Producto</th>
                             <th>Und</th>
                             <th>Placa</th>
+                            <th data-comb-owner-column hidden>Dueño</th>
                             <th class="stock-num">Cantidad</th>
                             <th class="stock-num">PU (calc)</th>
                             <th class="stock-num">Monto</th>
+                            <th>Fecha de emisión</th>
                             <th>Observacion</th>
+                            <th data-comb-classification-column hidden>Clasificación</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (!$rows): ?>
                             <tr data-combustible-empty>
-                                <td colspan="12" class="stock-empty">No hay movimientos para los filtros actuales.</td>
+                                <td colspan="13" class="stock-empty">No hay movimientos para los filtros actuales.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($rows as $row):
@@ -709,6 +899,10 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                                     $row['observacion'] ?? '',
                                 ]);
                                 $unidadTxt = comb_vehicle_label($row['bus'] ?? '', $row['placa'] ?? '');
+                                $fechaEmision = $row['fecha_emision'] ?? null;
+                                $fechaEmisionDisplay = $fechaEmision !== null && comb_valid_date($fechaEmision, '') !== ''
+                                    ? date('d/m/Y', strtotime($fechaEmision)) : '-';
+                                $clasificacion = comb_observacion_clasificacion($row['observacion'] ?? '');
                             ?>
                                 <tr data-combustible-row
                                     data-search="<?= comb_h(strtolower($searchBlob)) ?>"
@@ -737,10 +931,24 @@ require_once __DIR__ . '/../layout/content_eyc.php';
                                     <td><div class="comb-product"><strong><?= comb_h(comb_text($row['producto'] ?? '')) ?></strong></div></td>
                                     <td><?= comb_h(comb_text($row['unidad'] ?? '')) ?></td>
                                     <td><span class="comb-unit"><?= comb_h($unidadTxt) ?></span></td>
+                                    <td class="comb-owner-cell" data-comb-owner-column hidden><?= comb_h(comb_text($row['dueno'] ?? '', '—')) ?></td>
                                     <td class="stock-num"><?= comb_h(comb_fmt_qty($row['cantidad'] ?? 0)) ?></td>
                                     <td class="stock-num"><?= comb_h(comb_fmt_pu($row['precio_unitario'] ?? null)) ?></td>
                                     <td class="stock-num"><?= comb_h(comb_fmt_money($row['monto'] ?? 0)) ?></td>
-                                    <td><?= comb_h(comb_text($row['observacion'] ?? '')) ?></td>
+                                    <td class="comb-emision-cell" data-comb-export-text="<?= comb_h($fechaEmisionDisplay) ?>">
+                                        <span><?= comb_h($fechaEmisionDisplay) ?></span>
+                                        <?php if ($canAddEmision && $fechaEmision === null): ?>
+                                            <button type="button" class="comb-emision-add"
+                                                    data-comb-emision-add data-movement-id="<?= (int)$row['id_mov'] ?>"
+                                                    aria-label="Agregar fecha de emisión al movimiento <?= (int)$row['id_mov'] ?>">
+                                                <i class="bi bi-calendar-plus" aria-hidden="true"></i> Agregar fecha
+                                            </button>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?= comb_observacion_html($row['observacion'] ?? '') ?></td>
+                                    <td class="comb-classification-cell" data-comb-classification-column hidden>
+                                        <span class="comb-classification comb-classification--<?= comb_h($clasificacion['class']) ?>"><?= comb_h($clasificacion['label']) ?></span>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -753,6 +961,34 @@ require_once __DIR__ . '/../layout/content_eyc.php';
     <?php eyc_render_content_separator('bottom'); ?>
 </div>
 
+
+<?php if ($canAddEmision): ?>
+<dialog class="comb-emision-dialog" data-comb-emision-dialog aria-labelledby="combEmisionTitle">
+    <form method="POST" action="historial_combustible.php" data-comb-emision-form>
+        <header class="comb-emision-dialog__head">
+            <div>
+                <h2 id="combEmisionTitle">Agregar fecha de emisión</h2>
+                <p data-comb-emision-movement></p>
+            </div>
+            <button type="button" class="comb-emision-close" data-comb-emision-cancel aria-label="Cerrar">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </header>
+        <input type="hidden" name="action" value="guardar_fecha_emision">
+        <input type="hidden" name="csrf" value="<?= comb_h($_SESSION['comb_hist_emision_csrf']) ?>">
+        <input type="hidden" name="id_mov">
+        <label class="stock-field">
+            <span>Fecha de emisión</span>
+            <input type="date" name="fecha_emision" min="1000-01-01" max="9999-12-31" required>
+        </label>
+        <p class="comb-emision-message" data-comb-emision-message role="alert"></p>
+        <div class="comb-emision-dialog__actions">
+            <button type="button" class="stock-btn stock-btn--soft" data-comb-emision-cancel>Cancelar</button>
+            <button type="submit" class="stock-btn stock-btn--primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Guardar fecha</button>
+        </div>
+    </form>
+</dialog>
+<?php endif; ?>
 
 <div class="modal fade comb-price-modal" id="modalHistPrecio" tabindex="-1" aria-labelledby="modalHistPrecioLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -976,7 +1212,7 @@ window.eyc_COMBUSTIBLE_REPORT = {
     subtitle: 'Movimientos operativos por grifo',
     docCode: 'COM_RPT_HIST_COMB',
     period: <?= json_encode($periodoLabel, JSON_UNESCAPED_UNICODE) ?>,
-    filters: <?= json_encode([$tipoLabel, $selectedProductoLabel, $selectedGrifoLabel, $grupoLabel, $placaLabel], JSON_UNESCAPED_UNICODE) ?>,
+    filters: <?= json_encode([$emisionLabel, $tipoLabel, $selectedProductoLabel, $selectedGrifoLabel, $grupoLabel, $placaLabel], JSON_UNESCAPED_UNICODE) ?>,
     generatedBy: <?= json_encode($nombreUsuario, JSON_UNESCAPED_UNICODE) ?>,
     dni: <?= json_encode((string)$dniUsuario, JSON_UNESCAPED_UNICODE) ?>,
     fileBase: <?= json_encode('Movimientos_Combustible_' . date('Ymd_His'), JSON_UNESCAPED_UNICODE) ?>,
@@ -999,7 +1235,7 @@ window.eyc_NOTA_PDF_CONFIG = {
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_tanqueada.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/formatos/notas/eyc_nota_abastecimiento.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/nota_pdf_eyc.js') ?>"></script>
-<script src="<?= eyc_asset('assets/js/combustible_historial_eyc.js') ?>"></script>
+<script src="<?= eyc_asset('assets/js/combustible_historial_eyc.js?emision=2&observacion=2&duenos=1&clasificacion=1') ?>"></script>
 <script src="<?= eyc_asset('assets/js/sidebar_eyc.js') ?>"></script>
 <script src="<?= eyc_asset('assets/js/header_eyc.js') ?>"></script>
 </body>

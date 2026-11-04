@@ -6,6 +6,9 @@
     const countNode = document.querySelector('[data-combustible-visible-count]');
     const pillNode = document.querySelector('[data-combustible-visible-pill]');
     const table = document.querySelector('[data-combustible-table]');
+    const hideAdditionalPrice = document.querySelector('[data-comb-hide-additional-price]');
+    const showOwners = document.querySelector('[data-comb-show-owners]');
+    const showClassification = document.querySelector('[data-comb-show-classification]');
 
     const visibleRows = () => rows.filter((row) => row.style.display !== 'none');
     const clean = (value) => String(value || '').replace(/\s+/g, ' ').trim();
@@ -30,17 +33,49 @@
         updateCount();
     };
 
-    const getTablePayload = () => {
-        if (!table) return { head: [], body: [] };
-        const head = Array.from(table.querySelectorAll('thead th')).map((th) => clean(th.textContent));
-        const body = visibleRows().map((row) => Array.from(row.children).map((td) => clean(td.dataset.combExportText || td.textContent)));
-        return { head, body };
+    const applyAdditionalPriceVisibility = () => {
+        table?.querySelectorAll('[data-comb-additional-price]').forEach((part) => {
+            part.hidden = Boolean(hideAdditionalPrice?.checked);
+        });
     };
 
-    const getPdfRows = (body) => body.map((row) => row.map((cell, index) => {
-        if (index === 4) return limit(cell, 86);
-        if (index === 5) return limit(cell, 110);
-        if (index === 11) return limit(cell, 160);
+    const applyOptionalColumnsVisibility = () => {
+        const show = Boolean(showOwners?.checked);
+        table?.querySelectorAll('[data-comb-owner-column]').forEach((cell) => {
+            cell.hidden = !show;
+        });
+        table?.classList.toggle('comb-table--owners', show);
+        const classificationVisible = Boolean(showClassification?.checked);
+        table?.querySelectorAll('[data-comb-classification-column]').forEach((cell) => {
+            cell.hidden = !classificationVisible;
+        });
+        table?.classList.toggle('comb-table--classification', classificationVisible);
+        const emptyCell = table?.querySelector('[data-combustible-empty] td');
+        if (emptyCell) emptyCell.colSpan = table.querySelectorAll('thead th:not([hidden])').length;
+    };
+
+    const getCellExportText = (cell) => {
+        if (cell.dataset.combExportText) return clean(cell.dataset.combExportText);
+        if (!cell.querySelector('[data-comb-additional-price][hidden]')) return clean(cell.textContent);
+        const copy = cell.cloneNode(true);
+        copy.querySelectorAll('[data-comb-additional-price][hidden]').forEach((part) => part.remove());
+        return clean(copy.textContent) || '-';
+    };
+
+    const getTablePayload = () => {
+        if (!table) return { head: [], body: [], columns: [] };
+        const headers = Array.from(table.querySelectorAll('thead th'));
+        const columns = headers.flatMap((th, index) => th.hidden ? [] : [index]);
+        const head = columns.map((index) => clean(headers[index].textContent));
+        const body = visibleRows().map((row) => columns.map((index) => getCellExportText(row.children[index])));
+        return { head, body, columns };
+    };
+
+    const getPdfRows = (payload) => payload.body.map((row) => row.map((cell, index) => {
+        const column = payload.columns[index];
+        if (column === 4) return limit(cell, 86);
+        if (column === 5) return limit(cell, 110);
+        if (column === 13) return limit(cell, 160);
         return cell || '-';
     }));
 
@@ -50,6 +85,87 @@
             return;
         }
         console[type === 'danger' ? 'error' : 'log'](message);
+    };
+
+    const initEmissionEditor = () => {
+        const dialog = document.querySelector('[data-comb-emision-dialog]');
+        if (!dialog) return;
+        const form = dialog.querySelector('[data-comb-emision-form]');
+        const dateInput = form.elements.namedItem('fecha_emision');
+        const idInput = form.elements.namedItem('id_mov');
+        const movement = dialog.querySelector('[data-comb-emision-movement]');
+        const message = dialog.querySelector('[data-comb-emision-message]');
+        const buttons = Array.from(form.querySelectorAll('button'));
+        let sourceButton = null;
+        let saving = false;
+
+        document.querySelectorAll('[data-comb-emision-add]').forEach((button) => {
+            button.addEventListener('click', () => {
+                if (saving || dialog.open) return;
+                sourceButton = button;
+                idInput.value = button.dataset.movementId;
+                dateInput.value = '';
+                movement.textContent = 'Movimiento #' + idInput.value;
+                message.textContent = '';
+                dialog.showModal();
+                dateInput.focus();
+            });
+        });
+        dialog.querySelectorAll('[data-comb-emision-cancel]').forEach((button) => {
+            button.addEventListener('click', () => {
+                if (!saving) dialog.close();
+            });
+        });
+        dialog.addEventListener('cancel', (event) => {
+            if (saving) event.preventDefault();
+        });
+        dialog.addEventListener('close', () => {
+            if (sourceButton?.isConnected) sourceButton.focus({ preventScroll: true });
+        });
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (saving || !form.reportValidity()) return;
+            const payload = new FormData(form);
+            saving = true;
+            message.textContent = '';
+            form.setAttribute('aria-busy', 'true');
+            buttons.forEach((button) => { button.disabled = true; });
+            dateInput.disabled = true;
+            try {
+                const response = await fetch(form.getAttribute('action'), {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { Accept: 'application/json' },
+                    body: payload
+                });
+                const data = await response.json();
+                if (!response.ok || !data?.ok) {
+                    throw new Error(data?.message || 'No se pudo guardar la fecha de emisión.');
+                }
+                if (String(data.id_mov) !== idInput.value || !/^\d{2}\/\d{2}\/\d{4}$/.test(data.fecha_display)) {
+                    throw new Error('No se pudo confirmar la fecha guardada. Actualiza el historial.');
+                }
+                const cell = sourceButton.closest('td');
+                const row = sourceButton.closest('[data-combustible-row]');
+                cell.textContent = data.fecha_display;
+                cell.dataset.combExportText = data.fecha_display;
+                row.dataset.search = (row.dataset.search || '') + ' ' + data.fecha_emision + ' ' + data.fecha_display;
+                applySearch();
+                dialog.close();
+                cell.tabIndex = -1;
+                cell.focus({ preventScroll: true });
+                toast('Fecha de emisión guardada.', 'success');
+            } catch (error) {
+                message.textContent = error instanceof SyntaxError
+                    ? 'No se pudo confirmar el guardado. Actualiza el historial antes de reintentar.'
+                    : (error.message || 'No se pudo guardar la fecha de emisión.');
+            } finally {
+                saving = false;
+                form.removeAttribute('aria-busy');
+                buttons.forEach((button) => { button.disabled = false; });
+                dateInput.disabled = false;
+            }
+        });
     };
 
     const drawFilters = (doc, left, top, width, filters) => {
@@ -101,9 +217,23 @@
 
                     drawFilters(doc, left, y, width, `Periodo: ${report.period || '-'} | ${filters || '-'}`);
 
+                    const ownersVisible = payload.columns.includes(8);
+                    const classificationVisible = payload.columns.includes(14);
+                    const columnWidths = classificationVisible
+                        ? (ownersVisible
+                            ? [8, 20, 14, 16, 22, 27, 7, 20, 22, 15, 14, 16, 21, 25, 24]
+                            : [9, 21, 15, 18, 24, 31, 8, 21, 0, 16, 15, 17, 22, 28, 26])
+                        : (ownersVisible
+                            ? [9, 21, 15, 18, 24, 31, 8, 21, 24, 16, 15, 17, 22, 30, 0]
+                            : [10, 22, 16, 20, 28, 38, 9, 22, 0, 17, 16, 18, 23, 32, 0]);
+                    const columnStyles = Object.fromEntries(payload.columns.map((column, index) => [index, {
+                        cellWidth: columnWidths[column],
+                        ...([9, 10, 11].includes(column) ? { halign: 'right' } : {})
+                    }]));
+
                     doc.autoTable({
                         head: [payload.head],
-                        body: getPdfRows(payload.body),
+                        body: getPdfRows(payload),
                         startY: y + 25,
                         margin: { left, right, top: 32, bottom: 22 },
                         tableWidth: 'wrap',
@@ -126,24 +256,12 @@
                             textColor: [17, 24, 39]
                         },
                         alternateRowStyles: { fillColor: [249, 251, 253] },
-                        columnStyles: {
-                            0: { cellWidth: 12 },
-                            1: { cellWidth: 27 },
-                            2: { cellWidth: 17 },
-                            3: { cellWidth: 22 },
-                            4: { cellWidth: 35 },
-                            5: { cellWidth: 42 },
-                            6: { cellWidth: 10 },
-                            7: { cellWidth: 24 },
-                            8: { cellWidth: 17, halign: 'right' },
-                            9: { cellWidth: 16, halign: 'right' },
-                            10: { cellWidth: 19, halign: 'right' },
-                            11: { cellWidth: 30 }
-                        },
+                        columnStyles,
                         didParseCell: function (data) {
                             if (data.section !== 'body') return;
-                            if ([8, 9, 10].includes(data.column.index)) data.cell.styles.halign = 'right';
-                            if (data.column.index !== 2) return;
+                            const column = payload.columns[data.column.index];
+                            if ([9, 10, 11].includes(column)) data.cell.styles.halign = 'right';
+                            if (column !== 2) return;
                             const value = String(data.cell.raw || '').toLowerCase();
                             if (value.includes('entrada')) data.cell.styles.textColor = [8, 118, 79];
                             if (value.includes('salida')) data.cell.styles.textColor = [184, 50, 39];
@@ -405,5 +523,11 @@
 
     document.querySelector('[data-combustible-export-pdf]')?.addEventListener('click', exportPdf);
     document.querySelector('[data-combustible-export-excel]')?.addEventListener('click', exportExcel);
+    hideAdditionalPrice?.addEventListener('change', applyAdditionalPriceVisibility);
+    applyAdditionalPriceVisibility();
+    showOwners?.addEventListener('change', applyOptionalColumnsVisibility);
+    showClassification?.addEventListener('change', applyOptionalColumnsVisibility);
+    applyOptionalColumnsVisibility();
     initPriceModals();
+    initEmissionEditor();
 })();
